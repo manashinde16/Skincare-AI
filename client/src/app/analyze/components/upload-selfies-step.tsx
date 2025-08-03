@@ -71,8 +71,19 @@ export default function UploadSelfiesStep({
     });
   };
 
-  const triggerFileInput = (type: keyof typeof data.images) => {
-    fileInputRefs[type].current?.click();
+  const triggerFileInput = (
+    type: keyof typeof data.images,
+    capture?: "user" | "environment"
+  ) => {
+    const input = fileInputRefs[type].current;
+    if (input) {
+      if (capture) {
+        input.setAttribute("capture", capture);
+      } else {
+        input.removeAttribute("capture");
+      }
+      input.click();
+    }
   };
 
   const nextInstruction = () => {
@@ -182,6 +193,9 @@ export default function UploadSelfiesStep({
                       </Button>
                       <Button
                         variant="outline"
+                        onClick={() =>
+                          triggerFileInput(photo.key, "environment")
+                        } // Added capture="environment"
                         className="w-full border-purple-200 text-purple-600 hover:bg-purple-50 bg-transparent"
                       >
                         <Camera className="w-4 h-4 mr-2" />
