@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sparkles, CheckCircle } from "lucide-react";
 import type { AnalysisData } from "../page";
+import { useRouter } from "next/navigation"; // Import useRouter
 
 interface SubmitStepProps {
   data: AnalysisData;
@@ -13,6 +14,7 @@ export default function SubmitStep({ data }: SubmitStepProps) {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [progress, setProgress] = useState(0);
+  const router = useRouter(); // Initialize useRouter
 
   const startAnalysis = () => {
     setIsAnalyzing(true);
@@ -49,7 +51,10 @@ export default function SubmitStep({ data }: SubmitStepProps) {
           <p className="text-gray-600 mb-6">
             Your personalized skincare routine is ready.
           </p>
-          <Button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-8 py-3">
+          <Button
+            onClick={() => router.push("/routine")} // Navigate to /routine
+            className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-8 py-3"
+          >
             View My Routine
           </Button>
         </div>
