@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -297,6 +297,30 @@ export default function RoutinePage() {
     "morning"
   );
   const [isTransitioning, setIsTransitioning] = useState(false);
+  interface AiResultPart {
+    text?: string;
+  }
+
+  interface AiResultContent {
+    parts: AiResultPart[];
+  }
+
+  interface AiResultItem {
+    content?: AiResultContent;
+  }
+
+  const [aiResult, setAiResult] = useState<AiResultItem[] | null>(null);
+
+  useEffect(() => {
+    const stored = window.localStorage.getItem("aiRoutineResult");
+    if (stored) {
+      try {
+        setAiResult(JSON.parse(stored));
+      } catch (e) {
+        setAiResult(null);
+      }
+    }
+  }, []);
 
   const currentRoutine =
     activeRoutine === "morning" ? morningRoutineData : nightRoutineData;
@@ -382,6 +406,20 @@ export default function RoutinePage() {
               </Button>
             </div>
           </div>
+
+          {/* AI Recommendations Section */}
+          {aiResult && (
+            <div className="max-w-2xl mx-auto my-8 p-6 bg-purple-50 rounded-lg shadow">
+              <h2 className="text-2xl font-bold mb-4">AI Recommendations</h2>
+              <div className="prose">
+                {aiResult[0]?.content?.parts[0]?.text
+                  ? aiResult[0].content.parts[0].text.split("\n").map((line, i) => (
+                      <p key={i}>{line}</p>
+                    ))
+                  : "No recommendations found."}
+              </div>
+            </div>
+          )}
 
           {/* Dynamic Routine Sections with Transition */}
           <div

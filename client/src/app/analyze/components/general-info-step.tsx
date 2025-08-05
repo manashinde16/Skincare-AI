@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import type { AnalysisData } from "../page";
+import { useState } from "react";
 
 interface GeneralInfoStepProps {
   data: AnalysisData;
@@ -35,6 +36,8 @@ export default function GeneralInfoStep({
   data,
   updateData,
 }: GeneralInfoStepProps) {
+  const [loading, setLoading] = useState(false);
+
   return (
     <div className="space-y-8">
       {/* Gender Selection */}

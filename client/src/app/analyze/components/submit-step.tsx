@@ -14,12 +14,42 @@ export default function SubmitStep({ data }: SubmitStepProps) {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
   const router = useRouter(); // Initialize useRouter
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    try {
+      const formData = new FormData();
+      // Gather all fields from data (customize as needed)
+      Object.entries(data).forEach(([key, value]) => {
+        if (key === "images" && value) {
+          Object.entries(value).forEach(([imgKey, file]) => {
+            if (file instanceof File) formData.append(imgKey, file);
+          });
+        } else if (value !== undefined && value !== null) {
+          formData.append(key, value as string);
+        }
+      });
+      const res = await fetch("http://localhost:5000/api/analyze", {
+        method: "POST",
+        body: formData,
+      });
+      const apiResult = await res.json();
+      setResult(apiResult);
+      console.log("Gemini AI response:", apiResult);
+    } catch (err) {
+      console.error("Error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const startAnalysis = () => {
     setIsAnalyzing(true);
     setProgress(0);
-
+    handleSubmit();
     // Simulate analysis progress
     const interval = setInterval(() => {
       setProgress((prev) => {
@@ -39,6 +69,10 @@ export default function SubmitStep({ data }: SubmitStepProps) {
   }, [data]);
 
   if (isComplete) {
+    // Save result to localStorage and navigate to routine page
+    if (result) {
+      window.localStorage.setItem('aiRoutineResult', JSON.stringify(result));
+    }
     return (
       <div className="text-center space-y-6">
         <div className="w-20 h-20 mx-auto bg-gradient-to-r from-green-400 to-green-500 rounded-full flex items-center justify-center">
