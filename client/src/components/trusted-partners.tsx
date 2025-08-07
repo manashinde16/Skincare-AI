@@ -4,26 +4,26 @@ import { useState } from "react";
 import Image from "next/image";
 
 const partners = [
-  { name: "Amazon", logo: "/placeholder.svg?height=60&width=120&text=Amazon" },
-  { name: "Nykaa", logo: "/placeholder.svg?height=60&width=120&text=Nykaa" },
+  { name: "Amazon", logo: "/amazon.png" },
+  { name: "Nykaa", logo: "/nykaa.png" },
   {
     name: "Flipkart",
-    logo: "/placeholder.svg?height=60&width=120&text=Flipkart",
+    logo: "/flipkart.png",
   },
-  { name: "Tira", logo: "/placeholder.svg?height=60&width=120&text=Tira" },
-  { name: "Sugar", logo: "/placeholder.svg?height=60&width=120&text=Sugar" },
-  { name: "Plum", logo: "/placeholder.svg?height=60&width=120&text=Plum" },
+  { name: "CeraVe", logo: "/cerave.png" },
+  { name: "Sugar", logo: "/sugar.png" },
+  { name: "Nivea", logo: "/nivea.png" },
   {
-    name: "The Derma Co.",
-    logo: "/placeholder.svg?height=60&width=120&text=Derma+Co",
+    name: "Lakme",
+    logo: "/lakme.png",
   },
   {
     name: "Minimalist",
-    logo: "/placeholder.svg?height=60&width=120&text=Minimalist",
+    logo: "/minimalist.png",
   },
   {
     name: "Cetaphil",
-    logo: "/placeholder.svg?height=60&width=120&text=Cetaphil",
+    logo: "/cetaphil.png",
   },
 ];
 
@@ -38,7 +38,7 @@ export default function TrustedPartners() {
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl mb-4">
-            Trusted by Skincare Users and Beauty Brands
+            Trusted by Skincare Users
           </h2>
           <p className="text-lg text-gray-600">
             Join thousands of users who trust our AI-powered recommendations
@@ -63,7 +63,8 @@ export default function TrustedPartners() {
             {duplicatedPartners.map((partner, index) => (
               <div
                 key={`${partner.name}-${index}`}
-                className="flex-shrink-0 flex items-center justify-center w-36 h-20 grayscale hover:grayscale-0 transition-all duration-300 hover:scale-110"
+                className="flex-shrink-0 flex items-center justify-center w-36 h-20 animate-fade-in"
+                style={{ animationDelay: `${index * 0.05}s` }}
               >
                 <Image
                   src={partner.logo || "/placeholder.svg"}

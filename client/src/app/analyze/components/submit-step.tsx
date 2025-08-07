@@ -1,118 +1,92 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Sparkles, CheckCircle } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Loader2, CheckCircle } from "lucide-react";
+import { useState, useEffect } from "react";
 import type { AnalysisData } from "../page";
-import { useRouter } from "next/navigation"; // Import useRouter
 
 interface SubmitStepProps {
   data: AnalysisData;
+  onSubmit: () => void;
 }
 
-export default function SubmitStep({ data }: SubmitStepProps) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export default function SubmitStep({ data, onSubmit }: SubmitStepProps) {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [isComplete, setIsComplete] = useState(false);
   const [progress, setProgress] = useState(0);
-  const router = useRouter(); // Initialize useRouter
+  const [analysisComplete, setAnalysisComplete] = useState(false);
+
+  useEffect(() => {
+    if (isAnalyzing) {
+      const interval = setInterval(() => {
+        setProgress((prev) => {
+          if (prev < 100) {
+            return prev + 10;
+          } else {
+            clearInterval(interval);
+            setAnalysisComplete(true);
+            onSubmit(); // Trigger navigation to report page
+            return 100;
+          }
+        });
+      }, 300); // Simulate progress
+      return () => clearInterval(interval);
+    }
+  }, [isAnalyzing, onSubmit]);
 
   const startAnalysis = () => {
     setIsAnalyzing(true);
     setProgress(0);
-
-    // Simulate analysis progress
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setIsAnalyzing(false);
-          setIsComplete(true);
-          return 100;
-        }
-        return prev + Math.random() * 15;
-      });
-    }, 200);
+    setAnalysisComplete(false);
   };
 
-  useEffect(() => {
-    console.log("Analysis data:", data);
-  }, [data]);
-
-  if (isComplete) {
-    return (
-      <div className="text-center space-y-6">
-        <div className="w-20 h-20 mx-auto bg-gradient-to-r from-green-400 to-green-500 rounded-full flex items-center justify-center">
-          <CheckCircle className="w-10 h-10 text-white" />
-        </div>
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Analysis Complete!
-          </h2>
-          <p className="text-gray-600 mb-6">
-            Your personalized skincare routine is ready.
-          </p>
-          <Button
-            onClick={() => router.push("/routine")} // Navigate to /routine
-            className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-8 py-3"
-          >
-            View My Routine
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  if (isAnalyzing) {
-    return (
-      <div className="text-center space-y-6">
-        <div className="relative">
-          <div className="w-20 h-20 mx-auto bg-gradient-to-r from-purple-100 to-pink-100 rounded-full flex items-center justify-center">
-            <Sparkles className="w-10 h-10 text-purple-600 animate-pulse" />
-          </div>
-          <div className="absolute inset-0 w-20 h-20 mx-auto border-4 border-purple-200 border-t-purple-500 rounded-full animate-spin" />
-        </div>
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Analyzing Your Skin
-          </h2>
-          <p className="text-gray-600 mb-4">
-            Generating your personalized skincare routine...
-          </p>
-          <div className="w-full max-w-md mx-auto bg-gray-200 rounded-full h-2">
-            <div
-              className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${Math.min(progress, 100)}%` }}
-            />
-          </div>
-          <p className="text-sm text-gray-500 mt-2">
-            {Math.round(Math.min(progress, 100))}% complete
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="text-center space-y-6">
-      <div className="w-20 h-20 mx-auto bg-gradient-to-r from-purple-100 to-pink-100 rounded-full flex items-center justify-center">
-        <Sparkles className="w-10 h-10 text-purple-600" />
-      </div>
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          Ready to Analyze
-        </h2>
-        <p className="text-gray-600 mb-6">
-          We&apos;ll analyze your photos and information to create a
-          personalized skincare routine just for you.
-        </p>
-        <Button
-          onClick={startAnalysis}
-          className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-8 py-3 text-lg"
-        >
-          <Sparkles className="w-5 h-5 mr-2" />
-          Generate Skin Analysis
-        </Button>
-      </div>
+    <div className="space-y-8 text-center">
+      <h2 className="text-2xl font-bold text-gray-900">
+        Ready for your personalized analysis?
+      </h2>
+      <p className="text-gray-600">
+        Click the button below to submit your information and generate your
+        custom skincare and wellness report.
+      </p>
+
+      <Card className="border-purple-100/50 shadow-lg bg-white/90">
+        <CardContent className="p-6 flex flex-col items-center justify-center">
+          {isAnalyzing ? (
+            <div className="w-full">
+              <Loader2 className="h-12 w-12 text-purple-accent animate-spin mx-auto mb-4" />
+              <p className="text-lg font-semibold text-gray-800 mb-2">
+                Analyzing Your Skin...
+              </p>
+              <p className="text-gray-500 mb-4">
+                This will only take a moment.
+              </p>
+              <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                <div
+                  className="bg-gradient-to-r from-purple-accent to-magenta-accent h-2.5 rounded-full transition-all duration-300 ease-out"
+                  style={{ width: `${progress}%` }}
+                ></div>
+              </div>
+              <p className="text-sm text-gray-500 mt-2">{progress}% Complete</p>
+            </div>
+          ) : (
+            <Button
+              onClick={startAnalysis}
+              className="bg-gradient-to-r from-purple-accent to-magenta-accent hover:from-purple-600 hover:to-pink-600 text-white text-lg px-8 py-6 rounded-full shadow-lg transition-all duration-300 hover:scale-105"
+            >
+              Start Analysis
+            </Button>
+          )}
+
+          {analysisComplete && (
+            <div className="mt-6 flex items-center text-green-600 font-semibold">
+              <CheckCircle className="w-5 h-5 mr-2" />
+              Analysis Complete! Redirecting...
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

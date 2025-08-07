@@ -249,7 +249,7 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => (
-  <Card className="flex-shrink-0 w-[280px] sm:w-[300px] snap-center mx-2 border-purple-100/50 shadow-md hover:shadow-lg transition-shadow flex flex-col">
+  <Card className="flex-shrink-0 w-[280px] sm:w-[300px] snap-center mx-2 border-purple-100/50 shadow-md hover:shadow-lg transition-shadow flex flex-col bg-white/80 backdrop-blur-sm animate-glass-pulse">
     <CardHeader className="p-4 pb-0">
       <Image
         src={product.image || "/placeholder.svg"}
@@ -283,7 +283,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => (
         rel="noopener noreferrer"
         className="w-full"
       >
-        <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white">
+        <Button className="w-full bg-gradient-to-r from-purple-accent to-magenta-accent hover:from-purple-600 hover:to-pink-600 text-white">
           View Product
         </Button>
       </Link>
@@ -311,38 +311,36 @@ export default function RoutinePage() {
   };
 
   return (
-    <div className="min-h-screen bg-white relative overflow-hidden">
-      {/* Background enhancements */}
-      <div className="fixed inset-0 bg-gradient-to-br from-white via-purple-50/20 to-lavender-50/30 pointer-events-none" />
-      <div className="fixed top-0 left-0 w-96 h-96 bg-gradient-to-br from-purple-100/30 to-pink-100/20 rounded-full blur-3xl pointer-events-none -translate-x-1/2 -translate-y-1/2" />
-      <div className="fixed bottom-0 right-0 w-80 h-80 bg-gradient-to-bl from-lavender-100/40 to-purple-100/20 rounded-full blur-3xl pointer-events-none translate-x-1/3 translate-y-1/2" />
-
-      <div className="relative z-10 min-h-screen">
-        {/* Header */}
-        <div className="border-b border-purple-100/50 bg-white/80 backdrop-blur-md">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
-              <Link
-                href="/"
-                className="flex items-center text-purple-600 hover:text-purple-700 transition-colors"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Home
-              </Link>
-              <div className="flex items-center space-x-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-purple-400 to-pink-400">
-                  <Sparkles className="h-5 w-5 text-white" />
-                </div>
-                <span className="text-xl font-semibold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                  Skincare AI
-                </span>
+    <div className="relative z-10 min-h-screen flex flex-col">
+      {/* Header remains the same */}
+      <div className="border-b border-purple-100/50 bg-white/80 backdrop-blur-md">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <Link
+              href="/"
+              className="flex items-center text-purple-600 hover:text-purple-700 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Home
+            </Link>
+            <div className="flex items-center space-x-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-purple-400 to-pink-400">
+                <Sparkles className="h-5 w-5 text-white" />
               </div>
+              <span className="text-xl font-semibold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                Skincare AI
+              </span>
             </div>
           </div>
         </div>
-
-        {/* Main Content */}
-        <div className="container mx-auto px-4 py-16">
+      </div>
+      {/* Main Content with Split Background */}
+      <div className="flex-grow relative overflow-hidden">
+        {/* Left side: White background */}
+        <div className="absolute inset-y-0 left-0 w-1/2 bg-white" />
+        {/* Right side: Lavender gradient background */}
+        <div className="absolute inset-y-0 right-0 w-1/2 bg-gradient-to-br from-lavender-light/50 to-purple-50/50" />
+        <div className="container mx-auto px-4 py-16 relative z-10">
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold text-gray-900 mb-2">
               Your Personalized Skincare Journey
@@ -352,7 +350,6 @@ export default function RoutinePage() {
               effective skincare routine just for you.
             </p>
           </div>
-
           {/* Routine Toggle */}
           <div className="flex justify-center mb-12">
             <div className="flex space-x-4 p-1 rounded-full bg-purple-50 border border-purple-100">
@@ -361,7 +358,7 @@ export default function RoutinePage() {
                 onClick={() => handleToggle("morning")}
                 className={`rounded-full px-6 py-2 text-lg font-medium transition-all duration-300 ${
                   activeRoutine === "morning"
-                    ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md"
+                    ? "bg-gradient-to-r from-purple-accent to-magenta-accent text-white shadow-md"
                     : "text-purple-600 hover:bg-purple-100"
                 }`}
               >
@@ -373,7 +370,7 @@ export default function RoutinePage() {
                 onClick={() => handleToggle("night")}
                 className={`rounded-full px-6 py-2 text-lg font-medium transition-all duration-300 ${
                   activeRoutine === "night"
-                    ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md"
+                    ? "bg-gradient-to-r from-purple-accent to-magenta-accent text-white shadow-md"
                     : "text-purple-600 hover:bg-purple-100"
                 }`}
               >
@@ -382,7 +379,6 @@ export default function RoutinePage() {
               </Button>
             </div>
           </div>
-
           {/* Dynamic Routine Sections with Transition */}
           <div
             className={`space-y-16 transition-opacity duration-300 ${
@@ -411,8 +407,6 @@ export default function RoutinePage() {
               </div>
             ))}
           </div>
-
-          {/* Removed Regenerate Button */}
         </div>
       </div>
     </div>
