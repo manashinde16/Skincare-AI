@@ -16,10 +16,15 @@ interface SkincareHistoryStepProps {
 const concernOptions = [
   "Acne",
   "Pigmentation",
-  "Dry patches",
   "Dark circles",
   "Redness",
-  "Others",
+  "Dry patches",
+  "Oily T-zone",
+  "Large pores",
+  "Blackheads",
+  "Whiteheads",
+  "Wrinkles",
+  "Sun damage",
 ];
 
 export default function SkincareHistoryStep({
@@ -50,22 +55,22 @@ export default function SkincareHistoryStep({
         <div className="space-y-4">
           <div className="flex space-x-4">
             <Button
-              variant={data.hasAllergies ? "default" : "outline"}
+              variant={data.hasAllergies === true ? "default" : "outline"}
               onClick={() => updateData({ hasAllergies: true })}
               className={`${
-                data.hasAllergies
-                  ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+                data.hasAllergies === true
+                  ? "bg-gradient-to-r from-purple-accent to-magenta-accent text-white"
                   : "border-purple-200 text-gray-700 hover:bg-purple-50"
               }`}
             >
               Yes
             </Button>
             <Button
-              variant={!data.hasAllergies ? "default" : "outline"}
+              variant={data.hasAllergies === false ? "default" : "outline"}
               onClick={() => updateData({ hasAllergies: false, allergies: "" })}
               className={`${
-                !data.hasAllergies
-                  ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+                data.hasAllergies === false
+                  ? "bg-gradient-to-r from-purple-accent to-magenta-accent text-white"
                   : "border-purple-200 text-gray-700 hover:bg-purple-50"
               }`}
             >
@@ -91,22 +96,22 @@ export default function SkincareHistoryStep({
         <div className="space-y-4">
           <div className="flex space-x-4">
             <Button
-              variant={data.usesProducts ? "default" : "outline"}
+              variant={data.usesProducts === true ? "default" : "outline"}
               onClick={() => updateData({ usesProducts: true })}
               className={`${
-                data.usesProducts
-                  ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+                data.usesProducts === true
+                  ? "bg-gradient-to-r from-purple-accent to-magenta-accent text-white"
                   : "border-purple-200 text-gray-700 hover:bg-purple-50"
               }`}
             >
               Yes
             </Button>
             <Button
-              variant={!data.usesProducts ? "default" : "outline"}
+              variant={data.usesProducts === false ? "default" : "outline"}
               onClick={() => updateData({ usesProducts: false, products: "" })}
               className={`${
-                !data.usesProducts
-                  ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+                data.usesProducts === false
+                  ? "bg-gradient-to-r from-purple-accent to-magenta-accent text-white"
                   : "border-purple-200 text-gray-700 hover:bg-purple-50"
               }`}
             >
@@ -135,8 +140,14 @@ export default function SkincareHistoryStep({
               <Checkbox
                 id={concern}
                 checked={data.concerns.includes(concern)}
-                onCheckedChange={() => toggleConcern(concern)}
-                className="border-purple-300 data-[state=checked]:bg-purple-500 data-[state=checked]:border-purple-500"
+                onCheckedChange={(checked) => {
+                  if (checked) {
+                    toggleConcern(concern);
+                  } else {
+                    toggleConcern(concern);
+                  }
+                }}
+                className="border-purple-300 data-[state=checked]:bg-purple-accent data-[state=checked]:border-purple-accent"
               />
               <label
                 htmlFor={concern}
@@ -146,7 +157,36 @@ export default function SkincareHistoryStep({
               </label>
             </div>
           ))}
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="other-concern"
+              checked={data.concerns.includes("Other")}
+              onCheckedChange={(checked) => {
+                if (checked) {
+                  toggleConcern("Other");
+                } else {
+                  toggleConcern("Other");
+                  updateData({ otherConcern: "" }); // Clear other concern if unchecked
+                }
+              }}
+              className="border-purple-300 data-[state=checked]:bg-purple-accent data-[state=checked]:border-purple-accent"
+            />
+            <label
+              htmlFor="other-concern"
+              className="text-sm font-medium text-gray-700 cursor-pointer"
+            >
+              Other
+            </label>
+          </div>
         </div>
+        {data.concerns.includes("Other") && (
+          <Input
+            placeholder="Please specify other concerns..."
+            value={data.otherConcern}
+            onChange={(e) => updateData({ otherConcern: e.target.value })}
+            className="mt-4 border-purple-200 focus:border-purple-400 focus:ring-purple-400"
+          />
+        )}
       </div>
 
       {/* Additional Details */}
