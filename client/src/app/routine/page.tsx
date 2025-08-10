@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -26,233 +26,79 @@ import {
   Eye,
 } from "lucide-react";
 
-// --- Data Structures ---
-interface Product {
-  id: number;
+// --- Data Structures (matching expected backend response for products) ---
+interface ProductRecommendation {
+  id: number; // Added for compatibility with existing ProductCard
   name: string;
-  image: string;
-  usage: string;
-  ingredients: string[];
+  image: string; // Base64 or URL
+  usage: string; // Corresponds to 'howToUse' in backend response
+  ingredients: string[]; // Corresponds to 'keyIngredients'
   link: string;
 }
 
-interface RoutineStep {
+interface RoutineStepFromBackend {
   title: string;
-  icon: React.ReactNode; // Icon for the step
-  products: Product[];
+  description: string;
+  products: ProductRecommendation[]; // Assuming backend provides this array of products
 }
 
-interface RoutineData {
-  label: string;
-  icon: React.ReactNode;
-  steps: RoutineStep[];
+interface BackendFullResponse {
+  morningRoutine: RoutineStepFromBackend[];
+  nightRoutine: RoutineStepFromBackend[];
+  lifestyle: {
+    do: string[];
+    dont: string[];
+    tips: string[];
+  };
+  analysis: string;
 }
 
-// --- Dummy Data for Routines (Updated to 1-3 products per step) ---
-const morningRoutineData: RoutineData = {
-  label: "Morning Routine",
-  icon: <span className="text-2xl">🌤️</span>,
-  steps: [
-    {
-      title: "Cleanse",
-      icon: <Droplet className="w-6 h-6 text-purple-600" />,
-      products: [
-        {
-          id: 1,
-          name: "Gentle Hydrating Cleanser",
-          image: "/placeholder.svg?height=200&width=200&text=Cleanser",
-          usage:
-            "Apply a small amount to damp skin, massage gently, then rinse thoroughly.",
-          ingredients: ["Hyaluronic Acid", "Ceramides"],
-          link: "#",
-        },
-        {
-          id: 2,
-          name: "Foaming Facial Cleanser",
-          image: "/placeholder.svg?height=200&width=200&text=Foaming+Cleanser",
-          usage:
-            "Lather with water, cleanse face, and rinse. Ideal for oily skin.",
-          ingredients: ["Niacinamide", "Salicylic Acid"],
-          link: "#",
-        },
-      ],
-    },
-    {
-      title: "Treat",
-      icon: <FlaskConical className="w-6 h-6 text-purple-600" />,
-      products: [
-        {
-          id: 1,
-          name: "Vitamin C Brightening Serum",
-          image: "/placeholder.svg?height=200&width=200&text=Vitamin+C+Serum",
-          usage:
-            "After cleansing, apply 3-4 drops to face and neck. Pat gently until absorbed.",
-          ingredients: ["Ascorbic Acid", "Ferulic Acid"],
-          link: "#",
-        },
-      ],
-    },
-    {
-      title: "Moisturize",
-      icon: <Cream className="w-6 h-6 text-purple-600" />,
-      products: [
-        {
-          id: 1,
-          name: "Lightweight Hydrating Moisturizer",
-          image: "/placeholder.svg?height=200&width=200&text=Light+Moisturizer",
-          usage: "Apply a small amount to face and neck after serum.",
-          ingredients: ["Glycerin", "Squalane"],
-          link: "#",
-        },
-        {
-          id: 2,
-          name: "Oil-Free Gel Moisturizer",
-          image: "/placeholder.svg?height=200&width=200&text=Gel+Moisturizer",
-          usage: "Ideal for oily and combination skin. Absorbs quickly.",
-          ingredients: ["Hyaluronic Acid", "Aloe Vera"],
-          link: "#",
-        },
-      ],
-    },
-    {
-      title: "Protect",
-      icon: <SunMedium className="w-6 h-6 text-purple-600" />,
-      products: [
-        {
-          id: 1,
-          name: "Broad Spectrum SPF 50",
-          image: "/placeholder.svg?height=200&width=200&text=SPF+50",
-          usage: "Apply generously as the last step of your morning routine.",
-          ingredients: ["Zinc Oxide", "Titanium Dioxide"],
-          link: "#",
-        },
-      ],
-    },
-  ],
-};
+// Skeleton Loader Component
+const SkeletonLoader = () => (
+  <div className="space-y-8 animate-pulse">
+    <div className="h-8 bg-gray-200 rounded w-3/4 mx-auto mb-4"></div>
+    <div className="h-6 bg-gray-200 rounded w-1/2 mx-auto mb-8"></div>
 
-const nightRoutineData: RoutineData = {
-  label: "Night Routine",
-  icon: <span className="text-2xl">🌙</span>,
-  steps: [
-    {
-      title: "Double Cleanse",
-      icon: <Droplet className="w-6 h-6 text-purple-600" />,
-      products: [
-        {
-          id: 1,
-          name: "Deep Cleansing Oil",
-          image: "/placeholder.svg?height=200&width=200&text=Cleansing+Oil",
-          usage:
-            "Massage onto dry skin to dissolve makeup and impurities, then rinse with water.",
-          ingredients: ["Jojoba Oil", "Polysorbate 80"],
-          link: "#",
-        },
-        {
-          id: 2,
-          name: "Gentle Hydrating Cleanser",
-          image: "/placeholder.svg?height=200&width=200&text=Cleanser",
-          usage:
-            "Apply a small amount to damp skin, massage gently, then rinse thoroughly.",
-          ingredients: ["Hyaluronic Acid", "Ceramides"],
-          link: "#",
-        },
-      ],
-    },
-    {
-      title: "Treat",
-      icon: <FlaskConical className="w-6 h-6 text-purple-600" />,
-      products: [
-        {
-          id: 1,
-          name: "Retinol Night Serum",
-          image: "/placeholder.svg?height=200&width=200&text=Retinol+Serum",
-          usage:
-            "Apply a thin layer to clean, dry skin 2-3 times a week, gradually increasing frequency.",
-          ingredients: ["Retinol", "Squalane"],
-          link: "#",
-        },
-        {
-          id: 2,
-          name: "AHA/BHA Exfoliating Serum",
-          image: "/placeholder.svg?height=200&width=200&text=Exfoliating+Serum",
-          usage: "Use 2-3 times a week on clean skin to exfoliate.",
-          ingredients: ["Glycolic Acid", "Salicylic Acid"],
-          link: "#",
-        },
-      ],
-    },
-    {
-      title: "Eye Care",
-      icon: <Eye className="w-6 h-6 text-purple-600" />,
-      products: [
-        {
-          id: 1,
-          name: "Restorative Eye Cream",
-          image: "/placeholder.svg?height=200&width=200&text=Eye+Cream",
-          usage: "Gently dab a pea-sized amount around the orbital bone.",
-          ingredients: ["Peptides", "Caffeine"],
-          link: "#",
-        },
-      ],
-    },
-    {
-      title: "Moisturize",
-      icon: <Cream className="w-6 h-6 text-purple-600" />,
-      products: [
-        {
-          id: 1,
-          name: "Restorative Night Cream",
-          image: "/placeholder.svg?height=200&width=200&text=Night+Cream",
-          usage: "Apply a generous amount to face and neck as the final step.",
-          ingredients: ["Ceramides", "Peptides", "Hyaluronic Acid"],
-          link: "#",
-        },
-        {
-          id: 2,
-          name: "Sleeping Mask",
-          image: "/placeholder.svg?height=200&width=200&text=Sleeping+Mask",
-          usage: "Apply a thick layer as the last step. Rinse in the morning.",
-          ingredients: ["Squalane", "Niacinamide"],
-          link: "#",
-        },
-      ],
-    },
-    {
-      title: "Spot Treatment",
-      icon: <Sparkles className="w-6 h-6 text-purple-600" />, // Reusing Sparkles for spot treatment
-      products: [
-        {
-          id: 1,
-          name: "Acne Spot Treatment",
-          image: "/placeholder.svg?height=200&width=200&text=Acne+Spot",
-          usage: "Apply a thin layer directly to blemishes as needed.",
-          ingredients: ["Salicylic Acid", "Tea Tree Oil"],
-          link: "#",
-        },
-        {
-          id: 2,
-          name: "Pimple Patch",
-          image: "/placeholder.svg?height=200&width=200&text=Pimple+Patch",
-          usage: "Apply patch to clean, dry blemish overnight.",
-          ingredients: ["Hydrocolloid"],
-          link: "#",
-        },
-      ],
-    },
-  ],
-};
+    {/* Routine Toggle Skeleton */}
+    <div className="flex justify-center mb-12">
+      <div className="flex space-x-4 p-1 rounded-full bg-gray-200 w-64 h-12"></div>
+    </div>
+
+    {/* Routine Sections Skeleton */}
+    {[...Array(2)].map((_, sectionIndex) => (
+      <div key={`section-skeleton-${sectionIndex}`} className="space-y-16">
+        <div className="h-8 bg-gray-200 rounded w-1/4 mx-auto"></div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+          {[...Array(4)].map((_, stepIndex) => (
+            <div
+              key={`step-card-skeleton-${sectionIndex}-${stepIndex}`}
+              className="p-4 rounded-lg border border-gray-200 bg-gray-100 shadow-sm flex flex-col items-center text-center h-48"
+            >
+              <div className="w-10 h-10 bg-gray-300 rounded-full mb-2"></div>
+              <div className="h-6 bg-gray-300 rounded w-3/4 mb-1"></div>
+              <div className="h-4 bg-gray-300 rounded w-1/2 mb-1"></div>
+              <div className="h-4 bg-gray-300 rounded w-2/3 mt-2"></div>
+              <div className="h-8 bg-gray-300 rounded-full w-24 mt-auto"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    ))}
+  </div>
+);
 
 // --- Product Card Component (Reused and adapted) ---
 interface ProductCardProps {
-  product: Product;
+  product: ProductRecommendation;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => (
   <Card className="flex-shrink-0 w-[280px] sm:w-[300px] snap-center mx-2 border-purple-100/50 shadow-md hover:shadow-lg transition-shadow flex flex-col bg-white/80 backdrop-blur-sm animate-glass-pulse">
     <CardHeader className="p-4 pb-0">
       <Image
-        src={product.image || "/placeholder.svg"}
+        src={
+          product.image || "/placeholder.svg?height=200&width=200&text=Product"
+        }
         alt={product.name}
         width={180}
         height={180}
@@ -293,13 +139,43 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => (
 
 // --- Main Routine Page Component ---
 export default function RoutinePage() {
+  const [reportContent, setReportContent] =
+    useState<BackendFullResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [activeRoutine, setActiveRoutine] = useState<"morning" | "night">(
     "morning"
   );
   const [isTransitioning, setIsTransitioning] = useState(false);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedData = localStorage.getItem("skincareReportData");
+      if (storedData) {
+        try {
+          const parsedData: BackendFullResponse = JSON.parse(storedData);
+          setReportContent(parsedData);
+        } catch (e) {
+          console.error("Failed to parse report data from localStorage:", e);
+          setError(
+            "Failed to load your personalized routine. Please try the analysis again."
+          );
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setError(
+          "No routine data found. Please complete the skin analysis form."
+        );
+        setIsLoading(false);
+      }
+    }
+  }, []);
+
   const currentRoutine =
-    activeRoutine === "morning" ? morningRoutineData : nightRoutineData;
+    reportContent && activeRoutine === "morning"
+      ? reportContent.morningRoutine
+      : reportContent?.nightRoutine;
 
   const handleToggle = (routine: "morning" | "night") => {
     if (activeRoutine === routine) return;
@@ -309,6 +185,55 @@ export default function RoutinePage() {
       setIsTransitioning(false);
     }, 300); // Match CSS transition duration
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col bg-gradient-to-br from-peach-50 via-lavender-50 to-pink-50 p-4 md:p-8 font-sans">
+        <div className="max-w-6xl mx-auto bg-white rounded-xl shadow-2xl p-6 md:p-10 lg:p-12 relative w-full">
+          <SkeletonLoader />
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-peach-50 via-lavender-50 to-pink-50">
+        <Card className="p-8 text-center shadow-lg border-red-200 bg-red-50/30">
+          <h2 className="text-2xl font-bold mb-4 text-red-700">
+            Error Loading Routine
+          </h2>
+          <p className="text-red-600">{error}</p>
+          <Link href="/analyze">
+            <Button className="mt-6 bg-gradient-to-r from-lavender-500 to-pink-500 text-white shadow-md hover:from-lavender-600 hover:to-pink-600 transition-all duration-300">
+              Go to Analysis
+            </Button>
+          </Link>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!reportContent || !currentRoutine) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-peach-50 via-lavender-50 to-pink-50">
+        <Card className="p-8 text-center shadow-lg">
+          <h2 className="text-2xl font-bold mb-4 text-gray-800">
+            No Routine Available
+          </h2>
+          <p className="text-gray-600">
+            Please complete the analysis form first to get your personalized
+            routine.
+          </p>
+          <Link href="/analyze">
+            <Button className="mt-6 bg-gradient-to-r from-lavender-500 to-pink-500 text-white shadow-md hover:from-lavender-600 hover:to-pink-600 transition-all duration-300">
+              Go to Analysis
+            </Button>
+          </Link>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="relative z-10 min-h-screen flex flex-col">
@@ -381,17 +306,36 @@ export default function RoutinePage() {
           </div>
           {/* Dynamic Routine Sections with Transition */}
           <div
+            key={activeRoutine}
             className={`space-y-16 transition-opacity duration-300 ${
               isTransitioning ? "opacity-0" : "opacity-100"
             }`}
           >
-            {currentRoutine.steps.map((step, index) => (
+            {currentRoutine.map((step, index) => (
               <div key={index} className="space-y-6">
                 <h2 className="text-2xl font-bold text-gray-900 flex items-center justify-center">
                   {" "}
                   {/* Centered step heading */}
                   <span className="flex items-center justify-center w-8 h-8 bg-purple-100 rounded-full mr-3">
-                    {step.icon}
+                    {/* Dynamically determine icon based on step title */}
+                    {step.title.toLowerCase().includes("cleanse") && (
+                      <Droplet className="w-6 h-6 text-purple-600" />
+                    )}
+                    {step.title.toLowerCase().includes("treat") && (
+                      <FlaskConical className="w-6 h-6 text-purple-600" />
+                    )}
+                    {step.title.toLowerCase().includes("moisturize") && (
+                      <Cream className="w-6 h-6 text-purple-600" />
+                    )}
+                    {step.title.toLowerCase().includes("protect") && (
+                      <SunMedium className="w-6 h-6 text-purple-600" />
+                    )}
+                    {step.title.toLowerCase().includes("eye care") && (
+                      <Eye className="w-6 h-6 text-purple-600" />
+                    )}
+                    {step.title.toLowerCase().includes("spot treatment") && (
+                      <Sparkles className="w-6 h-6 text-purple-600" />
+                    )}
                   </span>
                   Step {index + 1}: {step.title}
                 </h2>

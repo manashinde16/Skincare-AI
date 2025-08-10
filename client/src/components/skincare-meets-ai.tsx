@@ -62,12 +62,15 @@ export default function SkincareMeetsAI() {
           className="max-w-3xl mx-auto text-center animate-fade-in-up"
           style={{ animationDelay: "0.5s" }}
         >
-          <Image
-            src="/placeholder.svg?height=400&width=600"
-            alt="AI scanning face illustration"
+          <video
+            src="/skinvideo.mp4"
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="mx-auto rounded-xl shadow-lg border border-lavender-100/50"
             width={600}
             height={400}
-            className="mx-auto rounded-xl shadow-lg border border-lavender-100/50"
           />
           <p className="text-sm text-gray-500 mt-4">
             Our AI uses advanced computer vision to understand your unique skin.

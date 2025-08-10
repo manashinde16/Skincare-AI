@@ -158,14 +158,16 @@ export default function UploadSelfiesStep({
                   <div className="relative">
                     <Image
                       src={
-                        URL.createObjectURL(data.images[photo.key]!) ||
-                        "/placeholder.svg"
+                        data.images[photo.key]
+                          ? `data:image/jpeg;base64,${data.images[photo.key]}`
+                          : "/placeholder.svg"
                       }
                       alt={photo.label}
                       width={200}
                       height={200}
                       className="w-full h-48 object-cover rounded-lg"
                     />
+
                     <div className="absolute top-2 right-2 bg-green-500 rounded-full p-1">
                       <CheckCircle className="w-4 h-4 text-white" />
                     </div>

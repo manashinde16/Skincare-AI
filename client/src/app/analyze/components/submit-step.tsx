@@ -2,20 +2,21 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, CheckCircle } from "lucide-react";
+import { Loader2, CheckCircle, XCircle } from "lucide-react";
 import { useState, useEffect } from "react";
-import type { AnalysisData } from "../page";
+import type { AnalysisData } from "@/utils/payload-builder"; // Import AnalysisData
 
 interface SubmitStepProps {
   data: AnalysisData;
-  onSubmit: () => void;
+  onSubmit: () => Promise<void>; // This function now triggers the API call in the parent
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function SubmitStep({ data, onSubmit }: SubmitStepProps) {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [analysisComplete, setAnalysisComplete] = useState(false);
+  const [submissionStatus, setSubmissionStatus] = useState<
+    "idle" | "success" | "error"
+  >("idle");
 
   useEffect(() => {
     if (isAnalyzing) {
@@ -25,20 +26,28 @@ export default function SubmitStep({ data, onSubmit }: SubmitStepProps) {
             return prev + 10;
           } else {
             clearInterval(interval);
-            setAnalysisComplete(true);
-            onSubmit(); // Trigger navigation to report page
             return 100;
           }
         });
       }, 300); // Simulate progress
       return () => clearInterval(interval);
     }
-  }, [isAnalyzing, onSubmit]);
+  }, [isAnalyzing]);
 
-  const startAnalysis = () => {
+  const startAnalysis = async () => {
     setIsAnalyzing(true);
     setProgress(0);
-    setAnalysisComplete(false);
+    setSubmissionStatus("idle");
+
+    try {
+      await onSubmit(); // Call the parent's onSubmit, which handles the API call
+      setSubmissionStatus("success");
+    } catch (error) {
+      setSubmissionStatus("error");
+      console.error("Submission failed in SubmitStep:", error);
+    } finally {
+      setIsAnalyzing(false); // Stop loading animation regardless of success/failure
+    }
   };
 
   return (
@@ -71,19 +80,27 @@ export default function SubmitStep({ data, onSubmit }: SubmitStepProps) {
               <p className="text-sm text-gray-500 mt-2">{progress}% Complete</p>
             </div>
           ) : (
-            <Button
-              onClick={startAnalysis}
-              className="bg-gradient-to-r from-purple-accent to-magenta-accent hover:from-purple-600 hover:to-pink-600 text-white text-lg px-8 py-6 rounded-full shadow-lg transition-all duration-300 hover:scale-105"
-            >
-              Start Analysis
-            </Button>
-          )}
+            <>
+              <Button
+                onClick={startAnalysis}
+                className="bg-gradient-to-r from-purple-accent to-magenta-accent hover:from-purple-600 hover:to-pink-600 text-white text-lg px-8 py-6 rounded-full shadow-lg transition-all duration-300 hover:scale-105"
+              >
+                Start Analysis
+              </Button>
 
-          {analysisComplete && (
-            <div className="mt-6 flex items-center text-green-600 font-semibold">
-              <CheckCircle className="w-5 h-5 mr-2" />
-              Analysis Complete! Redirecting...
-            </div>
+              {submissionStatus === "success" && (
+                <div className="mt-6 flex items-center text-green-600 font-semibold">
+                  <CheckCircle className="w-5 h-5 mr-2" />
+                  Data submitted successfully!
+                </div>
+              )}
+              {submissionStatus === "error" && (
+                <div className="mt-6 flex items-center text-red-600 font-semibold">
+                  <XCircle className="w-5 h-5 mr-2" />
+                  Submission failed, please try again.
+                </div>
+              )}
+            </>
           )}
         </CardContent>
       </Card>

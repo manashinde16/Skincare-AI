@@ -1,16 +1,19 @@
 "use client";
 
+import type React from "react";
+
 import { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Camera, Upload, CheckCircle } from "lucide-react";
 import Image from "next/image";
+import { fileToBase64 } from "@/utils/image-utils"; // Import the utility
 
 interface CameraCaptureProps {
   label: string;
   description: string;
-  initialImage: File | null;
-  onCapture: (file: File | null) => void;
+  initialImage: string | null; // Now expects a Base64 string
+  onCapture: (base64Image: string | null) => void; // Now emits a Base64 string
 }
 
 export default function CameraCapture({
@@ -23,22 +26,22 @@ export default function CameraCapture({
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    if (initialImage) {
-      setImagePreviewUrl(URL.createObjectURL(initialImage));
-    } else {
-      setImagePreviewUrl(null);
-    }
-    return () => {
-      if (imagePreviewUrl) {
-        URL.revokeObjectURL(imagePreviewUrl);
-      }
-    };
-  }, [imagePreviewUrl, initialImage]);
+    // If initialImage is a Base64 string, use it directly for preview
+    setImagePreviewUrl(initialImage);
+  }, [initialImage]);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (file) {
-      onCapture(file);
+      try {
+        const base64 = await fileToBase64(file);
+        onCapture(base64); // Pass Base64 string to parent
+      } catch (error) {
+        console.error("Error converting file to Base64:", error);
+        onCapture(null);
+      }
     } else {
       onCapture(null);
     }
@@ -68,7 +71,7 @@ export default function CameraCapture({
           {imagePreviewUrl ? (
             <div className="relative">
               <Image
-                src={imagePreviewUrl || "/placeholder.svg"}
+                src={imagePreviewUrl || "/placeholder.svg"} // Use Base64 string directly
                 alt={label}
                 width={200}
                 height={200}
