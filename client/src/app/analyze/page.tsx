@@ -1,7 +1,6 @@
 "use client";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -14,42 +13,13 @@ import GenderSpecificQuestionsStep from "./components/gender-specific-questions-
 import LifestyleHabitsStep from "./components/lifestyle-habits-step";
 import SubmitStep from "./components/submit-step";
 import { useRouter } from "next/navigation";
+import {
+  buildPayload,
+  type AnalysisData as FullAnalysisData,
+} from "@/utils/payload-builder"; // Import buildPayload and the full AnalysisData type
 
-export interface AnalysisData {
-  gender: "male" | "female" | "";
-  ageCategory: "under-18" | "18-25" | "26-35" | "36-50" | "50-plus" | "";
-  skinType: "dry" | "oily" | "combination" | "normal" | "sensitive" | "";
-  images: {
-    front: File | null;
-    left: File | null;
-    right: File | null;
-  };
-  hasAllergies: boolean | null;
-  allergies: string;
-  usesProducts: boolean | null;
-  products: string;
-  concerns: string[];
-  otherConcern: string;
-  // Gender-specific questions
-  beardGrowthConcerns: boolean | null; // Male
-  shaveFrequently: boolean | null; // Male
-  oilyAcneProneSkinMale: boolean | null; // Male
-  hairFall: boolean | null; // Male
-  hormonalAcne: boolean | null; // Female
-  regularPeriods: boolean | null; // Female
-  applyMakeupDaily: boolean | null; // Female
-  pigmentationAroundMouthEyes: boolean | null; // Female
-  pregnantLactating: boolean | null; // Female
-  // Lifestyle & Habits
-  waterIntake: "less-1l" | "1-2l" | "2-3l" | "3l-plus" | "";
-  sleepHours: "less-5" | "6-7" | "8-plus" | "";
-  stressLevel: "low" | "moderate" | "high" | "";
-  exerciseFrequency: "never" | "1-2-times-week" | "3-plus-times-week" | "";
-  dietDescription: "junk-food" | "balanced" | "healthy" | "";
-  consumptionSugarCaffeineAlcohol: string;
-  currentMedicationsSupplements: string;
-  additionalDetails: string;
-}
+// Use the AnalysisData from payload-builder.ts as the source of truth
+export type AnalysisData = FullAnalysisData;
 
 const steps = [
   { id: 1, title: "Basic Info", description: "Tell us about yourself" },
@@ -86,6 +56,7 @@ export default function AnalyzePage() {
     products: "",
     concerns: [],
     otherConcern: "",
+    additionalDetails: "", // Initialize new field
     beardGrowthConcerns: null,
     shaveFrequently: null,
     oilyAcneProneSkinMale: null,
@@ -102,7 +73,6 @@ export default function AnalyzePage() {
     dietDescription: "",
     consumptionSugarCaffeineAlcohol: "",
     currentMedicationsSupplements: "",
-    additionalDetails: "",
   });
 
   const updateAnalysisData = (updates: Partial<AnalysisData>) => {
@@ -169,10 +139,47 @@ export default function AnalyzePage() {
     }
   };
 
-  const handleSubmit = () => {
-    // Save data to local storage
-    localStorage.setItem("skincareAnalysisData", JSON.stringify(analysisData));
-    router.push("/report");
+  const handleSubmit = async () => {
+    const payload = buildPayload(analysisData);
+
+    console.log("Complete Payload for API (including images):", payload);
+
+    try {
+      const response = await fetch("/api/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload), // Send complete payload with images
+      });
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(
+          `HTTP error! Status: ${response.status}, Message: ${
+            errorData || response.statusText || "Unknown error"
+          }`
+        );
+      }
+
+      const backendResponse = await response.json(); // Get the JSON response
+      // Store the backend response in localStorage for the report page
+      if (typeof window !== "undefined") {
+        localStorage.setItem(
+          "skincareReportData",
+          JSON.stringify(backendResponse)
+        );
+      }
+
+      console.log(
+        "Data submitted successfully! Backend Response:",
+        backendResponse
+      );
+      router.push("/report");
+    } catch (error) {
+      console.error("Error submitting data:", error);
+      throw error; // Re-throw the error so SubmitStep can catch and display it
+    }
   };
 
   const renderStep = () => {

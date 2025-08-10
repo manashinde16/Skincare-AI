@@ -11,337 +11,189 @@ import {
   XCircle,
   Droplet,
   Bed,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  Dumbbell,
   Utensils,
   Shield,
   Heart,
   Download,
   Mail,
+  Sparkles,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import type { AnalysisData } from "../analyze/page";
 
-// Define interfaces for the report structure
+// Define interfaces for the backend response structure
 interface ProductRecommendation {
+  id: number; // Added for compatibility with existing ProductCard
   name: string;
-  howToUse: string;
-  keyIngredients: string[];
+  image: string; // Base64 or URL
+  usage: string; // Corresponds to 'howToUse' in backend response
+  ingredients: string[]; // Corresponds to 'keyIngredients'
   link: string;
-  image?: string;
 }
 
-interface RoutineStep {
-  title: string; // This will now only be "Cleanser / Face Wash", "Moisturizer", etc.
+interface RoutineStepFromBackend {
+  title: string;
   description: string;
-  products: ProductRecommendation[];
+  products: ProductRecommendation[]; // Assuming backend provides this array of products
 }
 
-interface ReportContent {
-  morningRoutine: RoutineStep[];
-  nightRoutine: RoutineStep[];
-  dosAndDonts: {
-    eat: string[];
-    avoid: string[];
+interface BackendFullResponse {
+  morningRoutine: RoutineStepFromBackend[];
+  nightRoutine: RoutineStepFromBackend[];
+  lifestyle: {
+    do: string[];
+    dont: string[];
     tips: string[];
   };
+  analysis: string;
 }
 
+// Skeleton Loader Component
+const SkeletonLoader = () => (
+  <div className="space-y-8 animate-pulse">
+    <div className="h-8 bg-gray-200 rounded w-3/4 mx-auto mb-4"></div>
+    <div className="h-6 bg-gray-200 rounded w-1/2 mx-auto mb-8"></div>
+
+    {/* Routine Section Skeleton */}
+    {[...Array(2)].map((_, sectionIndex) => (
+      <section key={`section-skeleton-${sectionIndex}`} className="mb-10">
+        <div className="h-10 bg-gray-200 rounded w-1/3 mb-4"></div>
+        <div className="h-6 bg-gray-200 rounded w-2/3 mb-8"></div>
+        <div className="space-y-8">
+          {[...Array(3)].map((_, stepIndex) => (
+            <Card
+              key={`step-skeleton-${sectionIndex}-${stepIndex}`}
+              className="border-gray-100 shadow-sm"
+            >
+              <CardContent className="p-6">
+                <div className="h-6 bg-gray-200 rounded w-1/2 mb-3"></div>
+                <div className="h-4 bg-gray-200 rounded w-full mb-4"></div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {[...Array(2)].map((_, prodIndex) => (
+                    <Card
+                      key={`prod-skeleton-${sectionIndex}-${stepIndex}-${prodIndex}`}
+                      className="border-lavender-100 bg-lavender-50/30 shadow-xs"
+                    >
+                      <CardContent className="p-4 flex flex-col items-center text-center">
+                        <div className="rounded-full bg-gray-300 mb-3 w-20 h-20"></div>
+                        <div className="h-5 bg-gray-200 rounded w-3/4 mb-1"></div>
+                        <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
+                        <div className="h-3 bg-gray-200 rounded w-1/2 mb-3"></div>
+                        <div className="h-10 bg-gray-200 rounded w-full"></div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
+    ))}
+
+    {/* Do's & Don'ts Skeleton */}
+    <section className="mb-10">
+      <div className="h-10 bg-gray-200 rounded w-1/3 mb-4"></div>
+      <div className="h-6 bg-gray-200 rounded w-2/3 mb-8"></div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {[...Array(3)].map((_, cardIndex) => (
+          <Card
+            key={`dosdonts-skeleton-${cardIndex}`}
+            className="border-gray-100 shadow-sm"
+          >
+            <CardContent className="p-6">
+              <div className="h-6 bg-gray-200 rounded w-1/2 mb-4"></div>
+              <ul className="space-y-2">
+                {[...Array(3)].map((_, itemIndex) => (
+                  <li
+                    key={`dosdonts-item-skeleton-${cardIndex}-${itemIndex}`}
+                    className="h-4 bg-gray-200 rounded w-full"
+                  ></li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </section>
+  </div>
+);
+
 export default function ReportPage() {
-  const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null);
-  const [reportContent, setReportContent] = useState<ReportContent | null>(
-    null
-  );
+  const [reportContent, setReportContent] =
+    useState<BackendFullResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const storedData = localStorage.getItem("skincareAnalysisData");
+      const storedData = localStorage.getItem("skincareReportData");
       if (storedData) {
-        const parsedData: AnalysisData = JSON.parse(storedData);
-        setAnalysisData(parsedData);
-        setReportContent(generateReportContent(parsedData));
+        try {
+          const parsedData: BackendFullResponse = JSON.parse(storedData);
+          setReportContent(parsedData);
+        } catch (e) {
+          console.error("Failed to parse report data from localStorage:", e);
+          setError(
+            "Failed to load your personalized report. Please try the analysis again."
+          );
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setError(
+          "No report data found. Please complete the skin analysis form."
+        );
+        setIsLoading(false);
       }
     }
   }, []);
 
-  // Function to generate report content based on analysis data
-  const generateReportContent = (data: AnalysisData): ReportContent => {
-    const morningRoutine: RoutineStep[] = [];
-    const nightRoutine: RoutineStep[] = [];
-    const dosAndDonts = {
-      eat: [
-        "Hydrate well: Drink plenty of water throughout the day.",
-        "Eat vitamin-rich foods: Focus on fruits, vegetables, and whole grains.",
-        "Include healthy fats: Avocados, nuts, seeds, and olive oil support skin barrier.",
-        "Lean proteins: Essential for skin repair and collagen production.",
-      ],
-      avoid: [
-        "Excessive sugar and refined carbohydrates: Can contribute to inflammation and breakouts.",
-        "Highly processed foods: Often lack nutrients and can contain harmful additives.",
-        "Excessive dairy (if acne-prone): Some individuals find dairy exacerbates acne.",
-        "Fried foods: Can increase oil production and inflammation.",
-      ],
-      tips: [
-        "Sleep 7-8 hours: Quality sleep is crucial for skin repair and regeneration.",
-        "Manage stress: Practice mindfulness, meditation, or hobbies to reduce stress.",
-        "Avoid touching face frequently: Prevents transfer of oils and bacteria.",
-        "Clean phone screen: Your phone can harbor bacteria that transfers to your face.",
-        "Change pillowcases regularly: Reduces exposure to dirt and oils.",
-        "Exercise regularly: Improves circulation and helps detoxify the skin.",
-        "Sun protection: Always use broad-spectrum SPF 30+ daily, even indoors.",
-      ],
-    };
-
-    // Morning Routine Steps
-    morningRoutine.push({
-      title: "Cleanser / Face Wash",
-      description: `Start your day with a gentle cleanse to remove overnight impurities. Look for ingredients like ${
-        data.skinType === "oily" || data.concerns.includes("Acne")
-          ? "salicylic acid or tea tree oil"
-          : "hyaluronic acid or ceramides"
-      } to address your ${data.skinType} skin type and concerns like ${
-        data.concerns.length > 0 ? data.concerns[0] : "overall skin health"
-      }.`,
-      products: [
-        {
-          name:
-            data.skinType === "oily" || data.concerns.includes("Acne")
-              ? "Foaming Salicylic Acid Cleanser"
-              : "Hydrating Cream Cleanser",
-          howToUse:
-            "Apply to damp skin, massage gently for 60 seconds, then rinse thoroughly with lukewarm water.",
-          keyIngredients:
-            data.skinType === "oily" || data.concerns.includes("Acne")
-              ? ["Salicylic Acid", "Niacinamide"]
-              : ["Hyaluronic Acid", "Ceramides", "Glycerin"],
-          link: "#",
-          image: "/placeholder.svg?height=100&width=100",
-        },
-        {
-          name:
-            data.skinType === "sensitive"
-              ? "Ultra-Gentle pH-Balanced Cleanser"
-              : "Brightening Gel Cleanser",
-          howToUse:
-            "Lather a small amount with water, cleanse face, and rinse well. Pat dry.",
-          keyIngredients:
-            data.skinType === "sensitive"
-              ? ["Oat Extract", "Allantoin"]
-              : ["Vitamin C", "Licorice Root Extract"],
-          link: "#",
-          image: "/placeholder.svg?height=100&width=100",
-        },
-      ],
-    });
-
-    if (
-      data.concerns.includes("Pigmentation") ||
-      data.concerns.includes("Sun damage") ||
-      data.concerns.includes("Dullness")
-    ) {
-      morningRoutine.push({
-        title: "Serum (Targeted Treatment)",
-        description: `Address specific concerns like pigmentation or dullness with a potent serum. Ingredients like Vitamin C are powerful antioxidants that brighten and protect.`,
-        products: [
-          {
-            name: "Vitamin C Brightening Serum",
-            howToUse:
-              "Apply 3-4 drops to clean, dry face and neck. Gently pat until absorbed.",
-            keyIngredients: [
-              "L-Ascorbic Acid (Vitamin C)",
-              "Ferulic Acid",
-              "Vitamin E",
-            ],
-            link: "#",
-            image: "/placeholder.svg?height=100&width=100",
-          },
-        ],
-      });
-    }
-
-    morningRoutine.push({
-      title: "Moisturizer",
-      description: `Lock in hydration and support your skin barrier. Choose a moisturizer that suits your ${data.skinType} skin type, providing adequate moisture without feeling heavy.`,
-      products: [
-        {
-          name:
-            data.skinType === "oily"
-              ? "Lightweight Gel Moisturizer"
-              : "Hydrating Barrier Cream",
-          howToUse: "Apply a pea-sized amount evenly to face and neck.",
-          keyIngredients:
-            data.skinType === "oily"
-              ? ["Hyaluronic Acid", "Niacinamide"]
-              : ["Ceramides", "Squalane", "Peptides"],
-          link: "#",
-          image: "/placeholder.svg?height=100&width=100",
-        },
-        {
-          name:
-            data.skinType === "dry"
-              ? "Rich Emollient Cream"
-              : "Balancing Face Lotion",
-          howToUse:
-            "Warm a small amount between palms and press onto face and neck.",
-          keyIngredients:
-            data.skinType === "dry"
-              ? ["Shea Butter", "Glycerin", "Urea"]
-              : ["Green Tea Extract", "Centella Asiatica"],
-          link: "#",
-          image: "/placeholder.svg?height=100&width=100",
-        },
-      ],
-    });
-
-    morningRoutine.push({
-      title: "Sunscreen",
-      description: `The most crucial step for preventing premature aging and sun damage. Use a broad-spectrum SPF 30+ daily, regardless of weather.`,
-      products: [
-        {
-          name: "Mineral SPF 50 Sunscreen",
-          howToUse:
-            "Apply generously as the last step of your morning routine, 15 minutes before sun exposure. Reapply every 2 hours.",
-          keyIngredients: ["Zinc Oxide", "Titanium Dioxide"],
-          link: "#",
-          image: "/placeholder.svg?height=100&width=100",
-        },
-        {
-          name: "Chemical SPF 30 Daily Fluid",
-          howToUse:
-            "Apply a generous amount to face and neck. Blends seamlessly under makeup.",
-          keyIngredients: ["Avobenzone", "Octinoxate", "Hyaluronic Acid"],
-          link: "#",
-          image: "/placeholder.svg?height=100&width=100",
-        },
-      ],
-    });
-
-    // Night Routine Steps
-    nightRoutine.push({
-      title: "Double Cleanse",
-      description: `Remove makeup, sunscreen, and daily grime with an oil-based cleanser, followed by a gentle water-based cleanser. This ensures a clean canvas for your treatments.`,
-      products: [
-        {
-          name: "Oil Cleansing Balm",
-          howToUse:
-            "Massage onto dry skin to dissolve makeup and impurities. Add water to emulsify, then rinse.",
-          keyIngredients: [
-            "Jojoba Oil",
-            "Sunflower Seed Oil",
-            "Polysorbate 80",
-          ],
-          link: "#",
-          image: "/placeholder.svg?height=100&width=100",
-        },
-        {
-          name:
-            data.skinType === "oily" || data.concerns.includes("Acne")
-              ? "Purifying Gel Cleanser"
-              : "Hydrating Cream Cleanser",
-          howToUse:
-            "Follow with this cleanser on damp skin to remove any remaining residue. Rinse thoroughly.",
-          keyIngredients:
-            data.skinType === "oily" || data.concerns.includes("Acne")
-              ? ["Glycolic Acid", "Green Tea Extract"]
-              : ["Glycerin", "Amino Acids"],
-          link: "#",
-          image: "/placeholder.svg?height=100&width=100",
-        },
-      ],
-    });
-
-    if (
-      data.concerns.includes("Acne") ||
-      data.concerns.includes("Wrinkles") ||
-      data.concerns.includes("Pigmentation") ||
-      data.concerns.includes("Large pores")
-    ) {
-      nightRoutine.push({
-        title: "Treatment Serum",
-        description: `Target specific concerns with a powerful night serum. For ${
-          data.concerns.includes("Acne")
-            ? "acne, look for retinoids or salicylic acid."
-            : data.concerns.includes("Wrinkles")
-            ? "wrinkles, consider retinol or peptides."
-            : "pigmentation, try alpha arbutin or niacinamide."
-        }`,
-        products: [
-          {
-            name: data.concerns.includes("Acne")
-              ? "Retinoid Acne Treatment"
-              : data.concerns.includes("Wrinkles")
-              ? "Anti-Aging Retinol Serum"
-              : "Alpha Arbutin Pigmentation Serum",
-            howToUse:
-              "Apply a pea-sized amount to clean, dry face. Start 2-3 times a week and increase frequency as tolerated. Always use SPF in the morning.",
-            keyIngredients: data.concerns.includes("Acne")
-              ? ["Adapalene", "Niacinamide"]
-              : data.concerns.includes("Wrinkles")
-              ? ["Retinol", "Peptides", "Hyaluronic Acid"]
-              : ["Alpha Arbutin", "Kojic Acid"],
-            link: "#",
-            image: "/placeholder.svg?height=100&width=100",
-          },
-          {
-            name: data.concerns.includes("Large pores")
-              ? "Niacinamide Pore Minimizing Serum"
-              : "Hyaluronic Acid Hydrating Serum",
-            howToUse: "Apply a few drops to face before heavier creams.",
-            keyIngredients: data.concerns.includes("Large pores")
-              ? ["Niacinamide", "Zinc PCA"]
-              : ["Hyaluronic Acid", "Vitamin B5"],
-            link: "#",
-            image: "/placeholder.svg?height=100&width=100",
-          },
-        ],
-      });
-    }
-
-    nightRoutine.push({
-      title: "Night Moisturizer",
-      description: `A richer moisturizer for overnight repair and regeneration. It helps to replenish moisture lost throughout the day and supports the skin's natural healing process.`,
-      products: [
-        {
-          name:
-            data.skinType === "dry"
-              ? "Overnight Repair Balm"
-              : "Restorative Night Cream",
-          howToUse:
-            "Apply a generous layer to face and neck as the final step of your routine.",
-          keyIngredients:
-            data.skinType === "dry"
-              ? ["Squalane", "Ceramides", "Fatty Acids"]
-              : ["Peptides", "Antioxidants", "Glycerin"],
-          link: "#",
-          image: "/placeholder.svg?height=100&width=100",
-        },
-        {
-          name:
-            data.skinType === "oily"
-              ? "Oil-Free Hydrating Gel"
-              : "Sleeping Mask",
-          howToUse:
-            "Apply a thin layer as your last step. No need to rinse until morning.",
-          keyIngredients:
-            data.skinType === "oily"
-              ? ["Hyaluronic Acid", "Green Tea Extract"]
-              : ["Probiotics", "Centella Asiatica"],
-          link: "#",
-          image: "/placeholder.svg?height=100&width=100",
-        },
-      ],
-    });
-
-    return { morningRoutine, nightRoutine, dosAndDonts };
+  const handleDownloadReport = () => {
+    alert("Download Report functionality is not implemented in this demo.");
+    console.log("Downloading report for:", reportContent);
   };
 
-  if (!analysisData || !reportContent) {
+  const handleEmailReport = () => {
+    alert("Email Report functionality is not implemented in this demo.");
+    console.log("Emailing report to user:", reportContent);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-peach-50 via-lavender-50 to-pink-50 p-4 md:p-8 font-sans">
+        <div className="max-w-6xl mx-auto bg-white rounded-xl shadow-2xl p-6 md:p-10 lg:p-12 relative w-full">
+          <SkeletonLoader />
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-peach-50 via-lavender-50 to-pink-50">
+        <Card className="p-8 text-center shadow-lg border-red-200 bg-red-50/30">
+          <h2 className="text-2xl font-bold mb-4 text-red-700">
+            Error Loading Report
+          </h2>
+          <p className="text-red-600">{error}</p>
+          <Link href="/analyze">
+            <Button className="mt-6 bg-gradient-to-r from-lavender-500 to-pink-500 text-white shadow-md hover:from-lavender-600 hover:to-pink-600 transition-all duration-300">
+              Go to Analysis
+            </Button>
+          </Link>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!reportContent) {
+    // This case should ideally be caught by the error state, but as a fallback
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-peach-50 via-lavender-50 to-pink-50">
         <Card className="p-8 text-center shadow-lg">
           <h2 className="text-2xl font-bold mb-4 text-gray-800">
-            Generating Your Report...
+            No Report Available
           </h2>
           <p className="text-gray-600">
             Please complete the analysis form first to get your personalized
@@ -356,16 +208,6 @@ export default function ReportPage() {
       </div>
     );
   }
-
-  const handleDownloadReport = () => {
-    alert("Download Report functionality is not implemented in this demo.");
-    console.log("Downloading report for:", analysisData);
-  };
-
-  const handleEmailReport = () => {
-    alert("Email Report functionality is not implemented in this demo.");
-    console.log("Emailing report to user:", analysisData);
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-peach-50 via-lavender-50 to-pink-50 p-4 md:p-8 font-sans">
@@ -390,13 +232,37 @@ export default function ReportPage() {
             <Button
               onClick={handleEmailReport}
               variant="outline"
-              className="border-lavender-200 text-lavender-600 hover:bg-lavender-50 transition-all duration-200 px-6 py-3 text-base"
+              className="border-lavender-200 text-lavender-600 hover:bg-lavender-50 transition-all duration-200 px-6 py-3 text-base bg-transparent"
             >
               <Mail className="w-4 h-4 mr-2" />
               Email to Me
             </Button>
           </div>
         </div>
+
+        {/* Analysis Summary */}
+        {reportContent.analysis && (
+          <>
+            <Separator className="my-8 bg-gray-100" />
+            <section className="mb-10 text-center">
+              <CardHeader className="px-0 pt-0 pb-4">
+                <CardTitle className="text-3xl font-bold text-gray-900 flex items-center justify-center">
+                  <Sparkles className="w-7 h-7 mr-3 text-purple-500" /> Your
+                  Skin Analysis
+                </CardTitle>
+                <p className="text-gray-600 mt-2 max-w-2xl mx-auto">
+                  Here&apos;s a summary of your skin&apos;s current state and
+                  key insights.
+                </p>
+              </CardHeader>
+              <Card className="border-purple-100/50 shadow-lg bg-white/90 max-w-3xl mx-auto">
+                <CardContent className="p-6 text-lg text-gray-700 leading-relaxed">
+                  {reportContent.analysis}
+                </CardContent>
+              </Card>
+            </section>
+          </>
+        )}
 
         <Separator className="my-8 bg-gray-100" />
 
@@ -443,15 +309,15 @@ export default function ReportPage() {
                             {product.name}
                           </h4>
                           <p className="text-sm text-gray-600 mb-2">
-                            How to use: {product.howToUse}
+                            How to use: {product.usage}
                           </p>
                           <p className="text-xs text-gray-500 mb-3">
-                            Key Ingredients: {product.keyIngredients.join(", ")}
+                            Key Ingredients: {product.ingredients.join(", ")}
                           </p>
                           <Button
                             variant="outline"
                             size="sm"
-                            className="border-lavender-200 text-lavender-600 hover:bg-lavender-100"
+                            className="border-lavender-200 text-lavender-600 hover:bg-lavender-100 bg-transparent"
                             asChild
                           >
                             <a
@@ -517,15 +383,15 @@ export default function ReportPage() {
                             {product.name}
                           </h4>
                           <p className="text-sm text-gray-600 mb-2">
-                            How to use: {product.howToUse}
+                            How to use: {product.usage}
                           </p>
                           <p className="text-xs text-gray-500 mb-3">
-                            Key Ingredients: {product.keyIngredients.join(", ")}
+                            Key Ingredients: {product.ingredients.join(", ")}
                           </p>
                           <Button
                             variant="outline"
                             size="sm"
-                            className="border-lavender-200 text-lavender-600 hover:bg-lavender-100"
+                            className="border-lavender-200 text-lavender-600 hover:bg-lavender-100 bg-transparent"
                             asChild
                           >
                             <a
@@ -567,7 +433,7 @@ export default function ReportPage() {
                   <CheckCircle className="w-5 h-5 mr-2" /> Do&apos;s
                 </h3>
                 <ul className="list-disc list-inside space-y-2 text-gray-700">
-                  {reportContent.dosAndDonts.eat.map((item, index) => (
+                  {reportContent.lifestyle.do.map((item, index) => (
                     <li key={`do-eat-${index}`} className="flex items-start">
                       <Droplet className="w-4 h-4 mr-2 mt-1 flex-shrink-0 text-blue-500" />{" "}
                       {item}
@@ -582,7 +448,7 @@ export default function ReportPage() {
                   <XCircle className="w-5 h-5 mr-2" /> Don&apos;ts
                 </h3>
                 <ul className="list-disc list-inside space-y-2 text-gray-700">
-                  {reportContent.dosAndDonts.avoid.map((item, index) => (
+                  {reportContent.lifestyle.dont.map((item, index) => (
                     <li
                       key={`dont-avoid-${index}`}
                       className="flex items-start"
@@ -600,7 +466,7 @@ export default function ReportPage() {
                   <Bed className="w-5 h-5 mr-2" /> Lifestyle Tips
                 </h3>
                 <ul className="list-disc list-inside space-y-2 text-gray-700">
-                  {reportContent.dosAndDonts.tips.map((item, index) => (
+                  {reportContent.lifestyle.tips.map((item, index) => (
                     <li key={`tip-${index}`} className="flex items-start">
                       <Shield className="w-4 h-4 mr-2 mt-1 flex-shrink-0 text-purple-500" />{" "}
                       {item}
