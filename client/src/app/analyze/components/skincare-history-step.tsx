@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Mic, MicOff } from "lucide-react";
 import { useState } from "react";
-import type { AnalysisData } from "../page";
+import type { AnalysisData } from "../page"; // Use the updated AnalysisData from page.tsx
 
 interface SkincareHistoryStepProps {
   data: AnalysisData;

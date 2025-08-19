@@ -7,13 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Camera, Upload, CheckCircle } from "lucide-react";
 import Image from "next/image";
-import { fileToBase64 } from "@/utils/image-utils"; // Import the utility
 
 interface CameraCaptureProps {
   label: string;
   description: string;
-  initialImage: string | null; // Now expects a Base64 string
-  onCapture: (base64Image: string | null) => void; // Now emits a Base64 string
+  initialImage: string | File | null; // Can now handle both base64 strings and File objects
+  onCapture: (file: string | File | null) => void; // Can emit either base64 string or File object
 }
 
 export default function CameraCapture({
@@ -26,8 +25,22 @@ export default function CameraCapture({
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    // If initialImage is a Base64 string, use it directly for preview
-    setImagePreviewUrl(initialImage);
+    // Handle different types of initial images
+    if (initialImage) {
+      if (typeof initialImage === "string") {
+        // Base64 string - use directly
+        setImagePreviewUrl(initialImage);
+      } else if (initialImage instanceof File) {
+        // File object - create object URL for preview
+        const objectUrl = URL.createObjectURL(initialImage);
+        setImagePreviewUrl(objectUrl);
+
+        // Cleanup object URL when component unmounts or image changes
+        return () => URL.revokeObjectURL(objectUrl);
+      }
+    } else {
+      setImagePreviewUrl(null);
+    }
   }, [initialImage]);
 
   const handleFileChange = async (
@@ -35,13 +48,8 @@ export default function CameraCapture({
   ) => {
     const file = event.target.files?.[0];
     if (file) {
-      try {
-        const base64 = await fileToBase64(file);
-        onCapture(base64); // Pass Base64 string to parent
-      } catch (error) {
-        console.error("Error converting file to Base64:", error);
-        onCapture(null);
-      }
+      // For the new multipart submission, we'll pass the File object directly
+      onCapture(file);
     } else {
       onCapture(null);
     }
@@ -71,7 +79,7 @@ export default function CameraCapture({
           {imagePreviewUrl ? (
             <div className="relative">
               <Image
-                src={imagePreviewUrl || "/placeholder.svg"} // Use Base64 string directly
+                src={imagePreviewUrl || "/placeholder.svg"}
                 alt={label}
                 width={200}
                 height={200}

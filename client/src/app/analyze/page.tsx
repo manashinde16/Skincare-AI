@@ -13,10 +13,8 @@ import GenderSpecificQuestionsStep from "./components/gender-specific-questions-
 import LifestyleHabitsStep from "./components/lifestyle-habits-step";
 import SubmitStep from "./components/submit-step";
 import { useRouter } from "next/navigation";
-import {
-  buildPayload,
-  type AnalysisData as FullAnalysisData,
-} from "@/utils/payload-builder"; // Import buildPayload and the full AnalysisData type
+import type { AnalysisData as FullAnalysisData } from "@/utils/payload-builder";
+import type { FormSubmissionResponse } from "../../utils/form-submission";
 
 // Use the AnalysisData from payload-builder.ts as the source of truth
 export type AnalysisData = FullAnalysisData;
@@ -56,7 +54,7 @@ export default function AnalyzePage() {
     products: "",
     concerns: [],
     otherConcern: "",
-    additionalDetails: "", // Initialize new field
+    additionalDetails: "",
     beardGrowthConcerns: null,
     shaveFrequently: null,
     oilyAcneProneSkinMale: null,
@@ -139,46 +137,24 @@ export default function AnalyzePage() {
     }
   };
 
-  const handleSubmit = async () => {
-    const payload = buildPayload(analysisData);
-
-    console.log("Complete Payload for API (including images):", payload);
-
+  const handleSubmit = async (response: FormSubmissionResponse) => {
     try {
-      const response = await fetch("/api/submit", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload), // Send complete payload with images
-      });
-
-      if (!response.ok) {
-        const errorData = await response.text();
-        throw new Error(
-          `HTTP error! Status: ${response.status}, Message: ${
-            errorData || response.statusText || "Unknown error"
-          }`
-        );
-      }
-
-      const backendResponse = await response.json(); // Get the JSON response
       // Store the backend response in localStorage for the report page
       if (typeof window !== "undefined") {
         localStorage.setItem(
           "skincareReportData",
-          JSON.stringify(backendResponse)
+          JSON.stringify(response.result)
         );
       }
 
       console.log(
-        "Data submitted successfully! Backend Response:",
-        backendResponse
+        "Analysis completed successfully! Backend Response:",
+        response
       );
       router.push("/report");
     } catch (error) {
-      console.error("Error submitting data:", error);
-      throw error; // Re-throw the error so SubmitStep can catch and display it
+      console.error("Error handling submission response:", error);
+      throw error;
     }
   };
 
@@ -324,9 +300,10 @@ export default function AnalyzePage() {
                     </Button>
                   ) : (
                     <Button
-                      onClick={handleSubmit}
+                      onClick={() => {}} // This button is now handled by SubmitStep
                       disabled={!canProceed()}
                       className="bg-gradient-to-r from-purple-accent to-magenta-accent hover:from-purple-600 hover:to-pink-600 text-white opacity-100 disabled:opacity-50"
+                      style={{ display: "none" }} // Hide this button since SubmitStep handles submission
                     >
                       Generate Report
                       <ArrowRight className="w-4 h-4 ml-2" />
