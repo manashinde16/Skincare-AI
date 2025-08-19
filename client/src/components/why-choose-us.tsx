@@ -44,12 +44,17 @@ export default function WhyChooseUs() {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {features.map((feature, index) => (
-            <div key={index} className="relative group">
+            <div
+              key={index}
+              className="relative group animate-fade-in"
+              style={{ animationDelay: `${index * 0.1}s` }}
+            >
               <div className="absolute inset-0 bg-gradient-to-r from-purple-100/50 to-pink-100/50 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300 opacity-0 group-hover:opacity-100" />
-              <div className="relative bg-white rounded-2xl p-8 border border-purple-100/50 hover:border-purple-200 transition-all duration-300 h-full">
+              <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl p-8 border border-purple-100/50 hover:border-purple-200 transition-all duration-300 h-full group-hover:scale-[1.02] animate-glass-pulse">
                 <div className="flex items-center mb-4">
-                  <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-purple-100 to-pink-100 rounded-xl mr-4">
+                  <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-r from-purple-accent/20 to-magenta-accent/20 rounded-xl mr-4 relative overflow-hidden">
                     <feature.icon className="w-6 h-6 text-purple-600" />
+                    <span className="absolute inset-0 rounded-xl pointer-events-none group-hover:animate-button-glow" />
                   </div>
                   <Check className="w-5 h-5 text-green-500" />
                 </div>

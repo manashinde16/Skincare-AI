@@ -11,25 +11,23 @@ interface GeneralInfoStepProps {
 const genderOptions = [
   { value: "male", label: "Male" },
   { value: "female", label: "Female" },
-  { value: "prefer-not-to-say", label: "Prefer not to say" },
-];
+] as const; // Added as const for type safety
 
 const ageOptions = [
   { value: "under-18", label: "Under 18" },
-  { value: "19-25", label: "19–25" },
-  { value: "26-35", label: "26–35" },
-  { value: "36-45", label: "36–45" },
-  { value: "over-45", label: "Over 45" },
-];
+  { value: "18-25", label: "18-25" },
+  { value: "26-35", label: "26-35" },
+  { value: "36-50", label: "36-50" },
+  { value: "50-plus", label: "50+" },
+] as const;
 
 const skinTypeOptions = [
-  { value: "oily", label: "Oily" },
   { value: "dry", label: "Dry" },
+  { value: "oily", label: "Oily" },
+  { value: "combination", label: "Combination" },
   { value: "normal", label: "Normal" },
   { value: "sensitive", label: "Sensitive" },
-  { value: "combination", label: "Combination" },
-  { value: "not-sure", label: "Not sure" },
-];
+] as const;
 
 export default function GeneralInfoStep({
   data,
@@ -42,16 +40,15 @@ export default function GeneralInfoStep({
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           What is your gender?
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {genderOptions.map((option) => (
             <Button
               key={option.value}
-              variant={data.gender === option.value ? "default" : "outline"}
               onClick={() => updateData({ gender: option.value })}
-              className={`p-4 h-auto text-left justify-start ${
+              className={`p-4 h-auto text-left justify-start transition-all duration-200 ${
                 data.gender === option.value
-                  ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
-                  : "border-purple-200 text-gray-700 hover:bg-purple-50"
+                  ? "bg-gradient-to-r from-purple-accent to-magenta-accent text-white shadow-md"
+                  : "border-purple-200 text-gray-700 hover:bg-purple-50 bg-white"
               }`}
             >
               {option.label}
@@ -69,14 +66,11 @@ export default function GeneralInfoStep({
           {ageOptions.map((option) => (
             <Button
               key={option.value}
-              variant={
-                data.ageCategory === option.value ? "default" : "outline"
-              }
               onClick={() => updateData({ ageCategory: option.value })}
-              className={`p-4 h-auto text-left justify-start ${
+              className={`p-4 h-auto text-left justify-start transition-all duration-200 ${
                 data.ageCategory === option.value
-                  ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
-                  : "border-purple-200 text-gray-700 hover:bg-purple-50"
+                  ? "bg-gradient-to-r from-purple-accent to-magenta-accent text-white shadow-md"
+                  : "border-purple-200 text-gray-700 hover:bg-purple-50 bg-white"
               }`}
             >
               {option.label}
@@ -94,12 +88,11 @@ export default function GeneralInfoStep({
           {skinTypeOptions.map((option) => (
             <Button
               key={option.value}
-              variant={data.skinType === option.value ? "default" : "outline"}
               onClick={() => updateData({ skinType: option.value })}
-              className={`p-4 h-auto text-left justify-start ${
+              className={`p-4 h-auto text-left justify-start transition-all duration-200 ${
                 data.skinType === option.value
-                  ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
-                  : "border-purple-200 text-gray-700 hover:bg-purple-50"
+                  ? "bg-gradient-to-r from-purple-accent to-magenta-accent text-white shadow-md"
+                  : "border-purple-200 text-gray-700 hover:bg-purple-50 bg-white"
               }`}
             >
               {option.label}
