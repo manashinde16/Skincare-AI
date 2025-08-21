@@ -102,7 +102,7 @@ export async function submitAnalysisForm(
     });
 
     // Make the request to the backend
-    const response = await fetch("http://localhost:4000/api/generate", {
+    const response = await fetch("http://localhost:3000/api/generate", {
       method: "POST",
       body: formData,
       // Important: Do NOT set Content-Type header - let browser set multipart boundary
