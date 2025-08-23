@@ -43,7 +43,8 @@ The JSON should follow this exact schema:
   ],
   "Lifestyle": {
     "do": [ string ],
-    "dont": [ string ]
+    "dont": [ string ],
+    "tips": [ string ]
   },
   "Products": [
     {

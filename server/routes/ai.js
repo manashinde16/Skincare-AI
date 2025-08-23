@@ -8,16 +8,10 @@ import { z } from "zod";
 
 const router = express.Router();
 
-const FormSchema = z
-  .object({
-    prompt: z.string().min(1), // frontend sends "prompt" plus all other fields
-    // everything else is optional and will be merged into the prompt
-  })
-  .passthrough();
+const FormSchema = z.object({}).passthrough();
 
 // Accept exactly 3 images named "images"
 router.post("/generate", upload.array("images", 3), async (req, res) => {
-  const pool = getPool();
   let files = [];
   try {
     // 1) Validate & collect form fields
@@ -40,11 +34,31 @@ router.post("/generate", upload.array("images", 3), async (req, res) => {
       });
     }
 
-    // 2) Upload images to GenAI
+
+    // 2) Upload images to GenAI with error handling
     const uploaded = [];
     for (const f of files) {
-      const u = await genai.uploadFileToGenAI(f.path);
-      uploaded.push(u);
+      try {
+        const u = await genai.uploadFileToGenAI(f.path);
+        if (!u || !u.uri || !u.mimeType) {
+          console.error("Upload returned invalid data for file:", f.path, u);
+          return res.status(500).json({
+            ok: false,
+            error: "Image upload to GenAI failed or returned invalid data.",
+            file: f.path,
+            uploadResult: u
+          });
+        }
+        uploaded.push(u);
+      } catch (uploadErr) {
+        console.error("Image upload error for file:", f.path, uploadErr);
+        return res.status(500).json({
+          ok: false,
+          error: "Failed to upload one or more images to GenAI.",
+          file: f.path,
+          details: uploadErr?.message || String(uploadErr)
+        });
+      }
     }
 
     // 3) Build prompt with all questionnaire data (server-side)
@@ -63,43 +77,13 @@ router.post("/generate", upload.array("images", 3), async (req, res) => {
     const raw = response.text ?? JSON.stringify(response);
     const json = coerceJson(raw);
 
-    // 6) Persist in DB (no images stored)
-    const [result] = await pool.execute(
-      `INSERT INTO analyses (user_id, client_id, prompt, form_json, ai_model, ai_raw_response, ai_result_json, status)
-       VALUES (NULL, :client_id, :prompt, :form_json, :model, :raw, :result, 'success')`,
-      {
-        client_id: form.clientId || null,
-        prompt: finalPrompt,
-        form_json: JSON.stringify(form),
-        model,
-        raw,
-        result: JSON.stringify(json),
-      }
-    );
-
-    // 7) Cleanup temp files
+    // 6) Cleanup temp files
     await safeCleanup(files);
 
-    return res.json({ ok: true, id: result.insertId, result: json });
+    return res.json({ ok: true, result: json });
   } catch (err) {
     console.error("generate error:", err);
     await safeCleanup(files);
-    // best-effort DB log
-    try {
-      const pool = getPool();
-      await pool.execute(
-        `INSERT INTO analyses (user_id, client_id, prompt, form_json, ai_model, ai_raw_response, ai_result_json, status, error_message)
-         VALUES (NULL, NULL, :prompt, :form_json, :model, :raw, NULL, 'error', :msg)`,
-        {
-          prompt: req?.body?.prompt ?? "",
-          form_json: JSON.stringify(req?.body ?? {}),
-          model: "gemini-2.5-flash",
-          raw: "",
-          msg: err?.message || String(err),
-        }
-      );
-    } catch {}
-
     return res
       .status(500)
       .json({ ok: false, error: err?.message || "Internal error" });
