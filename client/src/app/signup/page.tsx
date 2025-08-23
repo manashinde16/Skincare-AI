@@ -1,9 +1,9 @@
 "use client";
 
 import type React from "react";
-
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,8 +15,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Sparkles, Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { signup } from "@/lib/api"; // ✅ connect to backend
 
 export default function SignupPage() {
+  const router = useRouter();
+
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -25,6 +28,7 @@ export default function SignupPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [serverError, setServerError] = useState("");
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -57,18 +61,23 @@ export default function SignupPage() {
     if (!validateForm()) return;
 
     setIsLoading(true);
+    setServerError("");
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      // ✅ Call backend signup
+      await signup(formData.email, formData.fullName, formData.password);
+
+      // Redirect to login after success
+      router.push("/login");
+    } catch (err: any) {
+      setServerError(err.message || "Something went wrong");
+    } finally {
       setIsLoading(false);
-      console.log("Signup attempt:", formData);
-      // Handle successful signup here
-    }, 1500);
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }));
     }
@@ -76,14 +85,14 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen bg-white relative overflow-hidden">
-      {/* Background enhancements matching landing page */}
+      {/* Background enhancements */}
       <div className="fixed inset-0 bg-gradient-to-br from-white via-purple-50/20 to-lavender-50/30 pointer-events-none" />
       <div className="fixed top-0 right-0 w-96 h-96 bg-gradient-to-bl from-purple-100/30 to-pink-100/20 rounded-full blur-3xl pointer-events-none translate-x-1/2 -translate-y-1/2" />
       <div className="fixed bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-lavender-100/40 to-purple-100/20 rounded-full blur-3xl pointer-events-none -translate-x-1/3 translate-y-1/2" />
 
       <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          {/* Back to home link */}
+          {/* Back to home */}
           <Link
             href="/"
             className="inline-flex items-center text-purple-600 hover:text-purple-700 mb-8 transition-colors"
@@ -111,77 +120,47 @@ export default function SignupPage() {
 
             <CardContent className="space-y-6">
               <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Full Name */}
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="fullName"
-                    className="text-sm font-medium text-gray-700"
-                  >
-                    Full Name
-                  </Label>
+                  <Label htmlFor="fullName">Full Name</Label>
                   <Input
                     id="fullName"
                     type="text"
                     placeholder="Enter your full name"
                     value={formData.fullName}
-                    onChange={(e) =>
-                      handleInputChange("fullName", e.target.value)
-                    }
-                    className={`rounded-lg border-gray-200 focus:border-purple-400 focus:ring-purple-400 ${
-                      errors.fullName
-                        ? "border-red-300 focus:border-red-400 focus:ring-red-400"
-                        : ""
-                    }`}
+                    onChange={(e) => handleInputChange("fullName", e.target.value)}
                   />
                   {errors.fullName && (
                     <p className="text-sm text-red-600">{errors.fullName}</p>
                   )}
                 </div>
 
+                {/* Email */}
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="email"
-                    className="text-sm font-medium text-gray-700"
-                  >
-                    Email
-                  </Label>
+                  <Label htmlFor="email">Email</Label>
                   <Input
                     id="email"
                     type="email"
                     placeholder="Enter your email"
                     value={formData.email}
                     onChange={(e) => handleInputChange("email", e.target.value)}
-                    className={`rounded-lg border-gray-200 focus:border-purple-400 focus:ring-purple-400 ${
-                      errors.email
-                        ? "border-red-300 focus:border-red-400 focus:ring-red-400"
-                        : ""
-                    }`}
                   />
                   {errors.email && (
                     <p className="text-sm text-red-600">{errors.email}</p>
                   )}
                 </div>
 
+                {/* Password */}
                 <div className="space-y-2">
-                  <Label
-                    htmlFor="password"
-                    className="text-sm font-medium text-gray-700"
-                  >
-                    Password
-                  </Label>
+                  <Label htmlFor="password">Password</Label>
                   <div className="relative">
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
                       placeholder="Create a password"
                       value={formData.password}
-                      onChange={(e) =>
-                        handleInputChange("password", e.target.value)
-                      }
-                      className={`rounded-lg border-gray-200 focus:border-purple-400 focus:ring-purple-400 pr-10 ${
-                        errors.password
-                          ? "border-red-300 focus:border-red-400 focus:ring-red-400"
-                          : ""
-                      }`}
+                      onChange={(e) => handleInputChange("password", e.target.value)}
+                      className="pr-10"
                     />
                     <button
                       type="button"
@@ -200,6 +179,12 @@ export default function SignupPage() {
                   )}
                 </div>
 
+                {/* Server error */}
+                {serverError && (
+                  <p className="text-sm text-red-600 text-center">{serverError}</p>
+                )}
+
+                {/* Submit */}
                 <Button
                   type="submit"
                   disabled={isLoading}
