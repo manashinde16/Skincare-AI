@@ -1,8 +1,8 @@
 "use client";
 
 import type React from "react";
-
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,8 +15,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Sparkles, Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { login } from "@/lib/api";
 
 export default function LoginPage() {
+  const router = useRouter();
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -24,6 +27,7 @@ export default function LoginPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -50,18 +54,20 @@ export default function LoginPage() {
     if (!validateForm()) return;
 
     setIsLoading(true);
+    setServerError(null);
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      await login(formData.email, formData.password);
+      router.push("/");
+    } catch (err: any) {
+      setServerError(err.message);
+    } finally {
       setIsLoading(false);
-      console.log("Login attempt:", formData);
-      // Handle successful login here
-    }, 1500);
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }));
     }
@@ -69,14 +75,12 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-white relative overflow-hidden">
-      {/* Background enhancements matching landing page */}
       <div className="fixed inset-0 bg-gradient-to-br from-white via-purple-50/20 to-lavender-50/30 pointer-events-none" />
       <div className="fixed top-0 left-0 w-96 h-96 bg-gradient-to-br from-purple-100/30 to-pink-100/20 rounded-full blur-3xl pointer-events-none -translate-x-1/2 -translate-y-1/2" />
       <div className="fixed bottom-0 right-0 w-80 h-80 bg-gradient-to-bl from-lavender-100/40 to-purple-100/20 rounded-full blur-3xl pointer-events-none translate-x-1/3 translate-y-1/2" />
 
       <div className="relative z-10 min-h-screen flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          {/* Back to home link */}
           <Link
             href="/"
             className="inline-flex items-center text-purple-600 hover:text-purple-700 mb-8 transition-colors"
@@ -166,6 +170,10 @@ export default function LoginPage() {
                     <p className="text-sm text-red-600">{errors.password}</p>
                   )}
                 </div>
+
+                {serverError && (
+                  <p className="text-sm text-red-600">{serverError}</p>
+                )}
 
                 <Button
                   type="submit"
