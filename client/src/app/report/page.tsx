@@ -1,3 +1,4 @@
+//report.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -46,6 +47,7 @@ interface BackendFullResponse {
     tips: string[];
   };
   analysis: string;
+  products: ProductRecommendation[];
 }
 
 // Skeleton Loader Component
@@ -125,29 +127,80 @@ export default function ReportPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const storedData = localStorage.getItem("skincareReportData");
-      if (storedData) {
-        try {
-          const parsedData: BackendFullResponse = JSON.parse(storedData);
-          setReportContent(parsedData);
-        } catch (e) {
-          console.error("Failed to parse report data from localStorage:", e);
+
+    // Normalizes backend result to expected frontend structure
+    // Helper to map product names to images in public folder
+    function getProductImage(productName: string): string {
+      const name = productName.toLowerCase();
+      if (name.includes("cerave")) return "/cerave.png";
+      if (name.includes("cetaphil")) return "/cetaphil.png";
+      if (name.includes("nivea")) return "/nivea.png";
+      if (name.includes("lakme")) return "/lakme.png";
+      if (name.includes("minimalist")) return "/minimalist.png";
+      if (name.includes("sugar")) return "/sugar.png";
+      // Add more mappings as you add more images
+      return "/placeholder.jpg";
+    }
+
+    function normalizeBackendResponse(raw: any): BackendFullResponse {
+      const products = (raw.Products || []).map((prod: any, idx: number) => ({
+        id: idx,
+        name: prod.name,
+        image: getProductImage(prod.name),
+        usage: prod.howToUse,
+        ingredients: prod.keyIngredients,
+        link: prod.productLink,
+      }));
+
+      const morningRoutine = (raw.MorningRoutine || []).map((step: any) => ({
+        title: step.title,
+        description: step.description,
+        products: [], // No products per step
+      }));
+      const nightRoutine = (raw.NightRoutine || []).map((step: any) => ({
+        title: step.title,
+        description: step.description,
+        products: [],
+      }));
+
+      return {
+        morningRoutine,
+        nightRoutine,
+        lifestyle: {
+          do: (raw.Lifestyle?.do || []),
+          dont: (raw.Lifestyle?.dont || []),
+          tips: (raw.Lifestyle?.tips || []),
+        },
+        analysis: raw.analysis || "",
+        products,
+      };
+    }
+
+    useEffect(() => {
+      if (typeof window !== "undefined") {
+        const storedData = localStorage.getItem("skincareReportData");
+        if (storedData) {
+          try {
+            const parsedData = JSON.parse(storedData);
+            // If response is wrapped in {ok, result}, unwrap
+            const backendResult = parsedData.result || parsedData;
+            setReportContent(normalizeBackendResponse(backendResult));
+          } catch (e) {
+            console.error("Failed to parse report data from localStorage:", e);
+            setError(
+              "Failed to load your personalized report. Please try the analysis again."
+            );
+          } finally {
+            setIsLoading(false);
+          }
+        } else {
           setError(
-            "Failed to load your personalized report. Please try the analysis again."
+            "No report data found. Please complete the skin analysis form."
           );
-        } finally {
           setIsLoading(false);
         }
-      } else {
-        setError(
-          "No report data found. Please complete the skin analysis form."
-        );
-        setIsLoading(false);
       }
-    }
-  }, []);
+    }, []);
 
   const handleDownloadReport = () => {
     alert("Download Report functionality is not implemented in this demo.");
@@ -266,6 +319,7 @@ export default function ReportPage() {
 
         <Separator className="my-8 bg-gray-100" />
 
+
         {/* Morning Routine Section */}
         <section className="mb-10">
           <CardHeader className="px-0 pt-0 pb-4">
@@ -287,51 +341,7 @@ export default function ReportPage() {
                   <h3 className="text-xl font-semibold text-gray-800 mb-3">
                     Step {stepIndex + 1}: {step.title}
                   </h3>
-                  <p className="text-gray-700 mb-4">{step.description}</p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {step.products.map((product, prodIndex) => (
-                      <Card
-                        key={`morning-prod-${stepIndex}-${prodIndex}`}
-                        className="border-lavender-100 bg-lavender-50/30 shadow-xs"
-                      >
-                        <CardContent className="p-4 flex flex-col items-center text-center">
-                          <Image
-                            src={
-                              product.image ||
-                              "/placeholder.svg?height=80&width=80&query=skincare%20product"
-                            }
-                            alt={product.name}
-                            width={80}
-                            height={80}
-                            className="rounded-full object-cover mb-3 border border-lavender-200"
-                          />
-                          <h4 className="text-lg font-medium text-gray-800 mb-1">
-                            {product.name}
-                          </h4>
-                          <p className="text-sm text-gray-600 mb-2">
-                            How to use: {product.usage}
-                          </p>
-                          <p className="text-xs text-gray-500 mb-3">
-                            Key Ingredients: {product.ingredients.join(", ")}
-                          </p>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="border-lavender-200 text-lavender-600 hover:bg-lavender-100 bg-transparent"
-                            asChild
-                          >
-                            <a
-                              href={product.link}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              View Product
-                            </a>
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
+                  <p className="text-gray-700 mb-2">{step.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -339,6 +349,7 @@ export default function ReportPage() {
         </section>
 
         <Separator className="my-8 bg-gray-100" />
+
 
         {/* Night Routine Section */}
         <section className="mb-10">
@@ -361,51 +372,57 @@ export default function ReportPage() {
                   <h3 className="text-xl font-semibold text-gray-800 mb-3">
                     Step {stepIndex + 1}: {step.title}
                   </h3>
-                  <p className="text-gray-700 mb-4">{step.description}</p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {step.products.map((product, prodIndex) => (
-                      <Card
-                        key={`night-prod-${stepIndex}-${prodIndex}`}
-                        className="border-lavender-100 bg-lavender-50/30 shadow-xs"
-                      >
-                        <CardContent className="p-4 flex flex-col items-center text-center">
-                          <Image
-                            src={
-                              product.image ||
-                              "/placeholder.svg?height=80&width=80&query=skincare%20product"
-                            }
-                            alt={product.name}
-                            width={80}
-                            height={80}
-                            className="rounded-full object-cover mb-3 border border-lavender-200"
-                          />
-                          <h4 className="text-lg font-medium text-gray-800 mb-1">
-                            {product.name}
-                          </h4>
-                          <p className="text-sm text-gray-600 mb-2">
-                            How to use: {product.usage}
-                          </p>
-                          <p className="text-xs text-gray-500 mb-3">
-                            Key Ingredients: {product.ingredients.join(", ")}
-                          </p>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="border-lavender-200 text-lavender-600 hover:bg-lavender-100 bg-transparent"
-                            asChild
-                          >
-                            <a
-                              href={product.link}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              View Product
-                            </a>
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
+                  <p className="text-gray-700 mb-2">{step.description}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        {/* Recommended Products Section */}
+        <section className="mb-10">
+          <CardHeader className="px-0 pt-0 pb-4">
+            <CardTitle className="text-3xl font-bold text-gray-900 flex items-center">
+              <Sparkles className="w-7 h-7 mr-3 text-purple-500" /> Recommended Products
+            </CardTitle>
+            <p className="text-gray-600 mt-2">
+              Handpicked products to complement your routine. Click to learn more or purchase.
+            </p>
+          </CardHeader>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {reportContent.products.map((product) => (
+              <Card key={product.id} className="border-lavender-100 bg-lavender-50/30 shadow-xs flex flex-col items-center text-center">
+                <CardContent className="p-6 flex flex-col items-center">
+                  <Image
+                    src={product.image || "/placeholder.svg"}
+                    alt={product.name}
+                    width={80}
+                    height={80}
+                    className="rounded-full object-cover mb-3 border border-lavender-200"
+                  />
+                  <h4 className="text-lg font-medium text-gray-800 mb-1">
+                    {product.name}
+                  </h4>
+                  <p className="text-sm text-gray-600 mb-2">
+                    How to use: {product.usage}
+                  </p>
+                  <p className="text-xs text-gray-500 mb-3">
+                    Key Ingredients: {product.ingredients.join(", ")}
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-lavender-200 text-lavender-600 hover:bg-lavender-100 bg-transparent"
+                    asChild
+                  >
+                    <a
+                      href={product.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      View Product
+                    </a>
+                  </Button>
                 </CardContent>
               </Card>
             ))}

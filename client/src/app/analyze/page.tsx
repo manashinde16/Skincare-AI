@@ -146,11 +146,6 @@ export default function AnalyzePage() {
           JSON.stringify(response.result)
         );
       }
-
-      console.log(
-        "Analysis completed successfully! Backend Response:",
-        response
-      );
       router.push("/report");
     } catch (error) {
       console.error("Error handling submission response:", error);
