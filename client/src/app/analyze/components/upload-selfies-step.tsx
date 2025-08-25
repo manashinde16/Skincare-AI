@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { AnalysisData } from "../page";
-import CameraCapture from "../../../components/camera-capture";
+import CameraCapture from "../../../components/LandingPage/camera-capture";
 
 interface UploadSelfiesStepProps {
   data: AnalysisData;

@@ -16,9 +16,11 @@ import {
 } from "@/components/ui/card";
 import { Sparkles, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { signup } from "@/lib/api"; // ✅ connect to backend
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function SignupPage() {
   const router = useRouter();
+  const { login: authLogin } = useAuth();
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -65,10 +67,14 @@ export default function SignupPage() {
 
     try {
       // ✅ Call backend signup
-      await signup(formData.email, formData.fullName, formData.password);
-
-      // Redirect to login after success
-      router.push("/login");
+      const response = await signup(
+        formData.email,
+        formData.fullName,
+        formData.password
+      );
+      authLogin(response.user);
+      router.push("/");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setServerError(err.message || "Something went wrong");
     } finally {
@@ -128,7 +134,9 @@ export default function SignupPage() {
                     type="text"
                     placeholder="Enter your full name"
                     value={formData.fullName}
-                    onChange={(e) => handleInputChange("fullName", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("fullName", e.target.value)
+                    }
                   />
                   {errors.fullName && (
                     <p className="text-sm text-red-600">{errors.fullName}</p>
@@ -159,7 +167,9 @@ export default function SignupPage() {
                       type={showPassword ? "text" : "password"}
                       placeholder="Create a password"
                       value={formData.password}
-                      onChange={(e) => handleInputChange("password", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("password", e.target.value)
+                      }
                       className="pr-10"
                     />
                     <button
@@ -181,7 +191,9 @@ export default function SignupPage() {
 
                 {/* Server error */}
                 {serverError && (
-                  <p className="text-sm text-red-600 text-center">{serverError}</p>
+                  <p className="text-sm text-red-600 text-center">
+                    {serverError}
+                  </p>
                 )}
 
                 {/* Submit */}

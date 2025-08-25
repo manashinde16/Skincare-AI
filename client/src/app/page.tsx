@@ -1,14 +1,14 @@
-import Header from "../components/header";
-import HeroSection from "../components/hero-section";
-import HowItWorks from "../components/how-it-works";
-import WhyDifferent from "../components/why-different";
-import PersonalizedRoutine from "../components/personalized-routine";
-import Testimonials from "../components/testimonials";
-import SkincareMeetsAI from "../components/skincare-meets-ai";
-import FAQSection from "../components/faq-section";
-import FinalCTA from "../components/final-cta";
-import Footer from "../components/footer";
-import TrustedPartners from "../components/trusted-partners"; // Import the TrustedPartners component
+import Header from "../components/LandingPage/header";
+import HeroSection from "../components/LandingPage/hero-section";
+import HowItWorks from "../components/LandingPage/how-it-works";
+import WhyDifferent from "../components/LandingPage/why-different";
+import PersonalizedRoutine from "../components/LandingPage/personalized-routine";
+import Testimonials from "../components/LandingPage/testimonials";
+import SkincareMeetsAI from "../components/LandingPage/skincare-meets-ai";
+import FAQSection from "../components/LandingPage/faq-section";
+import FinalCTA from "../components/LandingPage/final-cta";
+import Footer from "../components/LandingPage/footer";
+import TrustedPartners from "../components/LandingPage/trusted-partners"; // Import the TrustedPartners component
 
 export default function Home() {
   return (

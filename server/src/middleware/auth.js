@@ -8,8 +8,10 @@ export function authMiddleware(req, res, next) {
   if (!token) return res.status(401).json({ error: "Invalid token format" });
 
   const payload = verifyJwt(token);
-  if (!payload) return res.status(401).json({ error: "Invalid or expired token" });
+  if (!payload)
+    return res.status(401).json({ error: "Invalid or expired token" });
 
   req.user = payload; // attach user data (id, email, etc.)
   next();
 }
+//

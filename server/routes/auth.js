@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { prisma } from "../src/lib/prisma.js";
 import { hashPassword, verifyPassword } from "../src/lib/password.js";
-import { signJwt } from "../src/lib/jwt.js";
+import { signJwt, verifyJwt } from "../src/lib/jwt.js";
 import { authMiddleware } from "../src/middleware/auth.js";
 
 const router = Router();
@@ -10,7 +10,7 @@ const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production", // only https in prod
   sameSite: "strict",
-  maxAge: 15 * 60 * 1000 // 15 min
+  maxAge: 15 * 60 * 1000, // 15 min
 };
 
 // POST /auth/signup
@@ -32,9 +32,15 @@ router.post("/signup", async (req, res) => {
   });
 
   // sign JWT
-  const token = signJwt({ sub: user.id, email: user.email });
+  const token = signJwt({ sub: user.id, email: user.email, name: user.name });
 
-  return res.json({ user: { id: user.id, email: user.email, name: user.name }, token });
+  // Set cookie
+  res.cookie("token", token, COOKIE_OPTIONS);
+
+  return res.json({
+    user: { id: user.id, email: user.email, name: user.name },
+    token,
+  });
 });
 
 router.post("/login", async (req, res) => {
@@ -55,7 +61,10 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    const token = signJwt({ sub: user.id, email: user.email });
+    const token = signJwt({ sub: user.id, email: user.email, name: user.name });
+
+    // Set cookie
+    res.cookie("token", token, COOKIE_OPTIONS);
 
     return res.json({
       message: "Login successful",
@@ -85,3 +94,4 @@ router.post("/logout", (req, res) => {
 });
 
 export default router;
+//
