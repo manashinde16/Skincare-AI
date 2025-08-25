@@ -30,7 +30,9 @@ export default function Home() {
       {/* Content with relative positioning and centered container */}
       <div className="relative z-10">
         <Header />
-        <HeroSection />
+        <div className="pt-20">
+          <HeroSection />
+        </div>
         <main className="max-w-screen-xl mx-auto">
           <HowItWorks />
           <TrustedPartners /> {/* Render the TrustedPartners component here */}
