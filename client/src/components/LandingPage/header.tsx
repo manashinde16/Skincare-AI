@@ -64,7 +64,7 @@ export default function Header() {
           borderRadius: `${scrollProgress * 24}px`,
           maxWidth:
             scrollProgress > 0.1
-              ? `${Math.max(40, 100 - scrollProgress * 40)}%`
+              ? `${Math.max(60, 100 - scrollProgress * 30)}%`
               : "100%",
           margin:
             scrollProgress > 0.1 ? `${scrollProgress * 16}px auto 0` : "0",
@@ -79,7 +79,9 @@ export default function Header() {
       >
         <div
           className={`flex h-full items-center justify-between ${
-            scrollProgress > 0.1 ? "px-6" : "container mx-auto"
+            scrollProgress > 0.1
+              ? "px-4 sm:px-6"
+              : "container mx-auto px-4 sm:px-6"
           }`}
         >
           <Link href="/" className="flex items-center space-x-2 group">
@@ -93,7 +95,7 @@ export default function Header() {
             </div>
             <span
               className={`
-                text-xl font-semibold text-gray-800 group-hover:text-gray-900 transition-all duration-300
+                text-lg sm:text-xl font-semibold text-gray-800 group-hover:text-gray-900 transition-all duration-300
               `}
             >
               Skincare AI
@@ -117,7 +119,7 @@ export default function Header() {
         borderRadius: `${scrollProgress * 24}px`,
         maxWidth:
           scrollProgress > 0.1
-            ? `${Math.max(40, 100 - scrollProgress * 40)}%`
+            ? `${Math.max(60, 100 - scrollProgress * 30)}%`
             : "100%",
         margin: scrollProgress > 0.1 ? `${scrollProgress * 16}px auto 0` : "0",
         left: scrollProgress > 0.1 ? "50%" : "0",
@@ -131,7 +133,9 @@ export default function Header() {
     >
       <div
         className={`flex h-full items-center justify-between ${
-          scrollProgress > 0.1 ? "px-6" : "container mx-auto"
+          scrollProgress > 0.1
+            ? "px-4 sm:px-6"
+            : "container mx-auto px-4 sm:px-6"
         }`}
       >
         <Link href="/" className="flex items-center space-x-2 group">
@@ -145,14 +149,14 @@ export default function Header() {
           </div>
           <span
             className={`
-               text-xl font-semibold text-gray-800 group-hover:text-gray-900 transition-all duration-300
+               text-lg sm:text-xl font-semibold text-gray-800 group-hover:text-gray-900 transition-all duration-300
              `}
           >
             Skincare AI
           </span>
         </Link>
 
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2 sm:space-x-4">
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -198,9 +202,9 @@ export default function Header() {
                 <Button
                   variant="ghost"
                   className={`
-                        text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-full px-6
-                        transition-all duration-500 ease-out hover:scale-105 font-medium
-                      `}
+                         text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-full px-3 sm:px-6
+                         transition-all duration-500 ease-out hover:scale-105 font-medium text-sm sm:text-base
+                       `}
                 >
                   Login
                 </Button>
@@ -208,10 +212,10 @@ export default function Header() {
               <Link href="/signup">
                 <Button
                   className={`
-                        bg-gradient-to-r from-lavender-500 to-pink-500 hover:from-lavender-600 hover:to-pink-600 
-                        text-white rounded-full px-6 shadow-lg hover:shadow-xl
-                        transition-all duration-500 ease-out hover:scale-105 font-medium
-                      `}
+                         bg-gradient-to-r from-lavender-500 to-pink-500 hover:from-lavender-600 hover:to-pink-600 
+                         text-white rounded-full px-3 sm:px-6 shadow-lg hover:shadow-xl
+                         transition-all duration-500 ease-out hover:scale-105 font-medium text-sm sm:text-base
+                       `}
                 >
                   Signup
                 </Button>
