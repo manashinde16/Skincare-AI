@@ -16,9 +16,11 @@ import {
 } from "@/components/ui/card";
 import { Sparkles, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { login } from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { login: authLogin } = useAuth();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -57,8 +59,10 @@ export default function LoginPage() {
     setServerError(null);
 
     try {
-      await login(formData.email, formData.password);
+      const response = await login(formData.email, formData.password);
+      authLogin(response.user);
       router.push("/");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setServerError(err.message);
     } finally {
