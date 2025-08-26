@@ -28,14 +28,16 @@ export default function SubmitStep({ data, onSubmit }: SubmitStepProps) {
     if (isAnalyzing) {
       const interval = setInterval(() => {
         setProgress((prev) => {
-          if (prev < 100) {
-            return prev + 10;
-          } else {
-            clearInterval(interval);
-            return 100;
-          }
+          // keep moving while pending but never hit 100 until completion
+          const targetCap = 99; // feel alive until server finishes
+          if (prev >= targetCap) return prev;
+          // ease increments as it gets higher
+          const delta = prev < 70 ? 3 : prev < 85 ? 2 : 1;
+          const next = Math.min(prev + delta, targetCap);
+          if (next !== prev) console.log("Progress:", next);
+          return next;
         });
-      }, 300); // Simulate progress
+      }, 400);
       return () => clearInterval(interval);
     }
   }, [isAnalyzing]);
@@ -43,6 +45,7 @@ export default function SubmitStep({ data, onSubmit }: SubmitStepProps) {
   const startAnalysis = async () => {
     setIsAnalyzing(true);
     setProgress(0);
+    console.log("Progress: 0");
     setSubmissionStatus("idle");
 
     try {
@@ -58,6 +61,8 @@ export default function SubmitStep({ data, onSubmit }: SubmitStepProps) {
       );
 
       if (response.ok) {
+        setProgress(100);
+        console.log("Progress: 100");
         setSubmissionStatus("success");
         await onSubmit(response); // Pass the response to parent
       } else {

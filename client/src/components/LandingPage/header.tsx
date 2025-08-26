@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Sparkles, LogOut, User } from "lucide-react";
+import { Sparkles, LogOut, User, Moon, Sun } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   DropdownMenu,
@@ -12,11 +12,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useTheme } from "next-themes";
 
 export default function Header() {
   const { user, logout, loading } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const { theme, setTheme, systemTheme } = useTheme();
+  const currentTheme = theme === "system" ? systemTheme : theme;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -55,8 +58,8 @@ export default function Header() {
       <header
         className={`
              fixed top-0 left-0 z-50 w-full px-6
-             bg-white/80 backdrop-blur-lg shadow-lg
-             border border-white/30
+             bg-white/80 dark:bg-neutral-900/70 backdrop-blur-lg shadow-lg
+             border border-white/30 dark:border-white/10
              transition-all duration-300 ease-out
            `}
         style={{
@@ -95,7 +98,7 @@ export default function Header() {
             </div>
             <span
               className={`
-                text-lg sm:text-xl font-semibold text-gray-800 group-hover:text-gray-900 transition-all duration-300
+                text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-100 group-hover:text-gray-900 transition-all duration-300
               `}
             >
               Skincare AI
@@ -110,8 +113,8 @@ export default function Header() {
     <header
       className={`
           fixed top-0 left-0 z-50 w-full px-6
-          bg-white/80 backdrop-blur-lg shadow-lg
-          border border-white/30
+          bg-white/80 dark:bg-neutral-900/70 backdrop-blur-lg shadow-lg
+          border border-white/30 dark:border-white/10
           transition-all duration-300 ease-out
         `}
       style={{
@@ -149,7 +152,7 @@ export default function Header() {
           </div>
           <span
             className={`
-               text-lg sm:text-xl font-semibold text-gray-800 group-hover:text-gray-900 transition-all duration-300
+               text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-100 group-hover:text-gray-900 transition-all duration-300
              `}
           >
             Skincare AI
@@ -157,6 +160,19 @@ export default function Header() {
         </Link>
 
         <div className="flex items-center space-x-2 sm:space-x-4">
+          <Button
+            variant="ghost"
+            className="h-10 w-10 rounded-full p-0 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:scale-110 transition-all duration-500 ease-out"
+            onClick={() => setTheme(currentTheme === "dark" ? "light" : "dark")}
+            aria-label="Toggle theme"
+            title="Toggle theme"
+          >
+            {currentTheme === "dark" ? (
+              <Sun className="h-5 w-5 text-yellow-400" />
+            ) : (
+              <Moon className="h-5 w-5 text-gray-700" />
+            )}
+          </Button>
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -174,14 +190,14 @@ export default function Header() {
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
-                className="w-56 rounded-2xl border-gray-200 bg-white shadow-xl"
+                className="w-56 rounded-2xl border-gray-200 dark:border-white/10 bg-white dark:bg-neutral-900 shadow-xl"
               >
                 <div className="flex items-center justify-start gap-2 p-2">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none text-gray-900">
+                    <p className="text-sm font-medium leading-none text-gray-900 dark:text-gray-100">
                       {user.name}
                     </p>
-                    <p className="text-xs leading-none text-gray-500">
+                    <p className="text-xs leading-none text-gray-500 dark:text-gray-400">
                       {user.email}
                     </p>
                   </div>
@@ -189,7 +205,7 @@ export default function Header() {
                 <DropdownMenuItem
                   onClick={handleLogout}
                   disabled={isLoggingOut}
-                  className="text-red-600 focus:text-red-600 cursor-pointer hover:bg-red-50"
+                  className="text-red-600 focus:text-red-600 cursor-pointer hover:bg-red-50 dark:hover:bg-red-950/40"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
                   {isLoggingOut ? "Logging out..." : "Logout"}
@@ -202,9 +218,9 @@ export default function Header() {
                 <Button
                   variant="ghost"
                   className={`
-                         text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-full px-3 sm:px-6
-                         transition-all duration-500 ease-out hover:scale-105 font-medium text-sm sm:text-base
-                       `}
+                        text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800 rounded-full px-3 sm:px-6
+                        transition-all duration-500 ease-out hover:scale-105 font-medium text-sm sm:text-base
+                      `}
                 >
                   Login
                 </Button>
@@ -212,10 +228,10 @@ export default function Header() {
               <Link href="/signup">
                 <Button
                   className={`
-                         bg-gradient-to-r from-lavender-500 to-pink-500 hover:from-lavender-600 hover:to-pink-600 
-                         text-white rounded-full px-3 sm:px-6 shadow-lg hover:shadow-xl
-                         transition-all duration-500 ease-out hover:scale-105 font-medium text-sm sm:text-base
-                       `}
+                        bg-gradient-to-r from-lavender-500 to-pink-500 hover:from-lavender-600 hover:to-pink-600 
+                        text-white rounded-full px-3 sm:px-6 shadow-lg hover:shadow-xl
+                        transition-all duration-500 ease-out hover:scale-105 font-medium text-sm sm:text-base
+                      `}
                 >
                   Signup
                 </Button>

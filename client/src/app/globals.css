@@ -116,6 +116,29 @@
   --color-magenta-accent: #ec4899;
 }
 
+/* Dark mode variable overrides (next-themes adds .dark on <html>) */
+.dark {
+  --color-background: #0b0d12;
+  --color-foreground: #e5e7eb;
+  --color-card: #0f131a;
+  --color-card-foreground: #e5e7eb;
+  --color-popover: #0f131a;
+  --color-popover-foreground: #e5e7eb;
+  --color-primary: #e5e7eb;
+  --color-primary-foreground: #0b0d12;
+  --color-secondary: #111827;
+  --color-secondary-foreground: #e5e7eb;
+  --color-muted: #111827;
+  --color-muted-foreground: #9ca3af;
+  --color-accent: #111827;
+  --color-accent-foreground: #e5e7eb;
+  --color-destructive: #7f1d1d;
+  --color-destructive-foreground: #fee2e2;
+  --color-border: #1f2937;
+  --color-input: #1f2937;
+  --color-ring: #94a3b8;
+}
+
 /* ================================
    CUSTOM UTILITIES
 ================================ */
@@ -231,6 +254,24 @@
   body {
     @apply bg-background text-foreground transition-colors duration-300;
   }
+
+  /* Global dark background gradient */
+  .dark body {
+    background-image: radial-gradient(1200px 600px at 50% -10%, rgba(139,92,246,0.12), transparent),
+      radial-gradient(1000px 600px at 80% 0%, rgba(236,72,153,0.08), transparent),
+      linear-gradient(180deg, #0b0d12, #0f131a);
+    color: var(--color-foreground);
+  }
+
+  /* Map common light classes to dark equivalents */
+  .dark .bg-white { background-color: #0f131a !important; }
+  .dark [class*="bg-white/"] { background-color: rgba(15,19,26,0.85) !important; }
+  .dark .text-gray-900, .dark .text-gray-800, .dark .text-gray-700 { color: #e5e7eb !important; }
+  .dark .text-gray-600 { color: #cbd5e1 !important; }
+  .dark .text-gray-500 { color: #94a3b8 !important; }
+  .dark .border-white\/30 { border-color: rgba(255,255,255,0.1) !important; }
+  .dark .border-gray-100, .dark .border-gray-200 { border-color: #1f2937 !important; }
+  .dark .hover\:bg-gray-100:hover { background-color: #1f2937 !important; }
 }
 
 /* ================================

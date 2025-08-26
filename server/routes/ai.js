@@ -25,15 +25,16 @@ router.post("/generate", upload.array("images", 3), async (req, res) => {
       });
     }
     const form = parsed.data;
+    console.log("Final Prompt Form Data:", form);
 
     files = req.files || [];
+    console.log("Uploaded Files:", files);
     if (files.length !== 3) {
       return res.status(400).json({
         ok: false,
         error: "Please upload exactly 3 images in the `images` field.",
       });
     }
-
 
     // 2) Upload images to GenAI with error handling
     const uploaded = [];
@@ -46,7 +47,7 @@ router.post("/generate", upload.array("images", 3), async (req, res) => {
             ok: false,
             error: "Image upload to GenAI failed or returned invalid data.",
             file: f.path,
-            uploadResult: u
+            uploadResult: u,
           });
         }
         uploaded.push(u);
@@ -56,18 +57,21 @@ router.post("/generate", upload.array("images", 3), async (req, res) => {
           ok: false,
           error: "Failed to upload one or more images to GenAI.",
           file: f.path,
-          details: uploadErr?.message || String(uploadErr)
+          details: uploadErr?.message || String(uploadErr),
         });
       }
     }
 
-    // 3) Build prompt with all questionnaire data (server-side)
+    // 3) Build prompt with all questionnaire data (server-side)\
+
     const finalPrompt = buildSkincarePrompt(form);
+    console.log("Final Prompt String:", finalPrompt);
 
     // 4) Create Gemini content parts (prompt + image parts)
     const parts = uploaded.map(({ uri, mimeType }) =>
       genai.createPartFromUri(uri, mimeType)
     );
+    console.log("Image Parts:", parts);
     const contents = [genai.createUserContent([finalPrompt, ...parts])];
 
     const model = "gemini-2.5-flash";
@@ -76,6 +80,10 @@ router.post("/generate", upload.array("images", 3), async (req, res) => {
     // 5) Try to extract STRICT JSON
     const raw = response.text ?? JSON.stringify(response);
     const json = coerceJson(raw);
+
+    console.log("Gemini API Response:", response);
+    console.log("Final Gemini Raw Response:", raw);
+    console.log("Final Gemini JSON:", json);
 
     // 6) Cleanup temp files
     await safeCleanup(files);

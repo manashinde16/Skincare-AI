@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import jsPDF from "jspdf";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -35,7 +36,8 @@ interface ProductRecommendation {
 interface RoutineStepFromBackend {
   title: string;
   description: string;
-  products: ProductRecommendation[]; // Assuming backend provides this array of products
+  products: ProductRecommendation[]; // legacy
+  productOptions?: ProductRecommendation[]; // two options per step
 }
 
 interface BackendFullResponse {
@@ -138,6 +140,26 @@ export default function ReportPage() {
       if (name.includes("lakme")) return "/lakme.png";
       if (name.includes("minimalist")) return "/minimalist.png";
       if (name.includes("sugar")) return "/sugar.png";
+      if (name.includes("the ordinary")) return "/ordinary.png";
+      if (name.includes("plum")) return "/Plum.png";
+      if (name.includes("pond's")) return "/ponds.png";
+      if (name.includes("neutrogena")) return "/Neutrogena.png";
+      if (name.includes("olay")) return "/Olay.png";
+      if (name.includes("loreal paris")) return "/loreal.png";
+      if (name.includes("l'oreal paris")) return "/loreal.png";
+      if (name.includes("re'equil")) return "/reequil.png";
+      if (name.includes("the derma")) return "/thederma.jpg";
+      if (name.includes("simple")) return "/simple.png";
+      if (name.includes("garnier")) return "/garnier.png";
+      if (name.includes("foxtale")) return "/foxtale.png";
+      if (name.includes("dot & key")) return "/dotkey.png";
+      if (name.includes("deconstruct")) return "/deconstruct.png";
+      if (name.includes("Blynds")) return "/blynds.png";
+      if (name.includes("klairs")) return "/klairs.jpg";
+      if (name.includes("bioderma")) return "/bioderma.png";
+      if (name.includes("avene")) return "/avene.png";
+      if (name.includes("physiogel")) return "/physiogel.png";
+
       // Add more mappings as you add more images
       return "/placeholder.jpg";
     }
@@ -152,16 +174,25 @@ export default function ReportPage() {
         link: prod.productLink,
       }));
 
-      const morningRoutine = (raw.MorningRoutine || []).map((step: any) => ({
-        title: step.title,
-        description: step.description,
-        products: [], // No products per step
-      }));
-      const nightRoutine = (raw.NightRoutine || []).map((step: any) => ({
-        title: step.title,
-        description: step.description,
-        products: [],
-      }));
+      const mapStep = (step: any) => {
+        const options = (step.productOptions || []).slice(0, 2).map((prod: any, idx: number) => ({
+          id: idx,
+          name: prod.name,
+          image: getProductImage(prod.name),
+          usage: prod.howToUse,
+          ingredients: prod.keyIngredients || [],
+          link: prod.productLink,
+        }));
+        return {
+          title: step.title,
+          description: step.description,
+          products: [],
+          productOptions: options,
+        } as RoutineStepFromBackend;
+      };
+
+      const morningRoutine = (raw.MorningRoutine || []).map(mapStep);
+      const nightRoutine = (raw.NightRoutine || []).map(mapStep);
 
       return {
         morningRoutine,
@@ -203,13 +234,182 @@ export default function ReportPage() {
     }, []);
 
   const handleDownloadReport = () => {
-    alert("Download Report functionality is not implemented in this demo.");
-    console.log("Downloading report for:", reportContent);
-  };
+    if (!reportContent) return;
+    console.log("Generating PDF Report");
 
-  const handleEmailReport = () => {
-    alert("Email Report functionality is not implemented in this demo.");
-    console.log("Emailing report to user:", reportContent);
+    const doc = new jsPDF({ unit: "pt", format: "a4" });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 40;
+    let y = margin;
+
+    const addPageIfNeeded = (needed = 24) => {
+      if (y + needed > pageHeight - margin) {
+        doc.addPage();
+        y = margin;
+      }
+    };
+
+    const addHeading = (text: string, icon?: string) => {
+      addPageIfNeeded(28);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(18);
+      doc.text(text, margin, y);
+      y += 24;
+    };
+
+    const addParagraph = (text: string) => {
+      addPageIfNeeded(24);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(12);
+      const lines = doc.splitTextToSize(text, pageWidth - margin * 2);
+      lines.forEach((line: string) => {
+        addPageIfNeeded(16);
+        doc.text(line, margin, y);
+        y += 16;
+      });
+      y += 8;
+    };
+
+    const addList = (items: string[]) => {
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(12);
+      items.forEach((item) => {
+        const lines = doc.splitTextToSize("• " + item, pageWidth - margin * 2);
+        lines.forEach((line: string) => {
+          addPageIfNeeded(16);
+          doc.text(line, margin, y);
+          y += 16;
+        });
+      });
+      y += 8;
+    };
+
+    const addDivider = () => {
+      addPageIfNeeded(20);
+      doc.setDrawColor(230);
+      doc.line(margin, y, pageWidth - margin, y);
+      y += 16;
+    };
+
+    // Title
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.text("Personalized Skin Wellness Report", margin, y);
+    y += 28;
+    addParagraph(
+      "A tailored guide to achieving your healthiest skin, based on your unique profile and concerns."
+    );
+    addDivider();
+
+    if (reportContent.analysis) {
+      addHeading("Skin Analysis");
+      addParagraph(reportContent.analysis);
+      addDivider();
+    }
+
+    addHeading("Morning Routine");
+    reportContent.morningRoutine.forEach((step, idx) => {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      addPageIfNeeded(18);
+      doc.text(`Step ${idx + 1}: ${step.title}`, margin, y);
+      y += 18;
+      addParagraph(step.description);
+      if (step.productOptions && step.productOptions.length) {
+        step.productOptions.slice(0, 2).forEach((p, pIdx) => {
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(12);
+          addPageIfNeeded(16);
+          doc.text(`Option ${pIdx + 1}: ${p.name}`, margin, y);
+          y += 14;
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(11);
+          addParagraph(`How to use: ${p.usage}`);
+          addParagraph(`Key Ingredients: ${p.ingredients.join(", ")}`);
+          addParagraph(
+            `Search: https://www.google.com/search?q=${encodeURIComponent(
+              p.name + " site:amazon.in OR site:nykaa.com OR site:flipkart.com"
+            )}`
+          );
+        });
+        addDivider();
+      }
+    });
+    addDivider();
+
+    addHeading("Night Routine");
+    reportContent.nightRoutine.forEach((step, idx) => {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      addPageIfNeeded(18);
+      doc.text(`Step ${idx + 1}: ${step.title}`, margin, y);
+      y += 18;
+      addParagraph(step.description);
+      if (step.productOptions && step.productOptions.length) {
+        step.productOptions.slice(0, 2).forEach((p, pIdx) => {
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(12);
+          addPageIfNeeded(16);
+          doc.text(`Option ${pIdx + 1}: ${p.name}`, margin, y);
+          y += 14;
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(11);
+          addParagraph(`How to use: ${p.usage}`);
+          addParagraph(`Key Ingredients: ${p.ingredients.join(", ")}`);
+          addParagraph(
+            `Search: https://www.google.com/search?q=${encodeURIComponent(
+              p.name + " site:amazon.in OR site:nykaa.com OR site:flipkart.com"
+            )}`
+          );
+        });
+        addDivider();
+      }
+    });
+    addDivider();
+
+    addHeading("Recommended Products");
+    reportContent.products.forEach((p) => {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      addPageIfNeeded(16);
+      doc.text(p.name, margin, y);
+      y += 16;
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(12);
+      addParagraph(`How to use: ${p.usage}`);
+      addParagraph(`Key Ingredients: ${p.ingredients.join(", ")}`);
+      addParagraph(`Link: ${p.link}`);
+      addDivider();
+    });
+
+    addHeading("Do's & Don'ts for Healthy Skin");
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    addPageIfNeeded(16);
+    doc.text("Do's", margin, y);
+    y += 16;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+    addList(reportContent.lifestyle.do);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    addPageIfNeeded(16);
+    doc.text("Don'ts", margin, y);
+    y += 16;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+    addList(reportContent.lifestyle.dont);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    addPageIfNeeded(16);
+    doc.text("Lifestyle Tips", margin, y);
+    y += 16;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+    addList(reportContent.lifestyle.tips);
+
+    doc.save("skin-wellness-report.pdf");
   };
 
   if (isLoading) {
@@ -271,8 +471,7 @@ export default function ReportPage() {
             Your Personalized Skin Wellness Report
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            A tailored guide to achieving your healthiest skin, based on your
-            unique profile and concerns.
+            Based on your skin and the details you shared, here is your personalized skincare routine.
           </p>
           <div className="mt-6 flex flex-col sm:flex-row justify-center gap-3">
             <Button
@@ -281,14 +480,6 @@ export default function ReportPage() {
             >
               <Download className="w-4 h-4 mr-2" />
               Download Report
-            </Button>
-            <Button
-              onClick={handleEmailReport}
-              variant="outline"
-              className="border-lavender-200 text-lavender-600 hover:bg-lavender-50 transition-all duration-200 px-6 py-3 text-base bg-transparent"
-            >
-              <Mail className="w-4 h-4 mr-2" />
-              Email to Me
             </Button>
           </div>
         </div>
@@ -341,7 +532,36 @@ export default function ReportPage() {
                   <h3 className="text-xl font-semibold text-gray-800 mb-3">
                     Step {stepIndex + 1}: {step.title}
                   </h3>
-                  <p className="text-gray-700 mb-2">{step.description}</p>
+                  <p className="text-gray-700 mb-4">{step.description}</p>
+                  {step.productOptions && step.productOptions.length > 0 && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {step.productOptions.slice(0, 2).map((product, idx) => (
+                        <Card key={`morning-step-${stepIndex}-opt-${idx}`} className="border-lavender-100 bg-lavender-50/30 shadow-xs flex flex-col">
+                          <CardContent className="p-4 flex items-start gap-4">
+                            <div className="relative w-14 h-14 md:w-16 md:h-16 rounded-full border border-lavender-200 bg-white overflow-hidden flex-shrink-0 flex items-center justify-center">
+                              <Image
+                                src={product.image || "/placeholder.jpg"}
+                                alt={product.name}
+                                fill
+                                className="object-contain p-1"
+                                sizes="64px"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-base font-semibold text-gray-800">{product.name}</h4>
+                              <p className="text-sm text-gray-600 mt-1 break-words whitespace-normal"><span className="font-medium">How to use:</span> {product.usage}</p>
+                              <p className="text-xs text-gray-500 mt-1 break-words whitespace-normal"><span className="font-medium">Key Ingredients:</span> {product.ingredients.join(", ")}</p>
+                              <div className="mt-2">
+                                <Button variant="outline" size="sm" className="border-lavender-200 text-lavender-600 hover:bg-lavender-100 bg-transparent" asChild>
+                                  <a href={`https://www.google.com/search?q=${encodeURIComponent(product.name + ' site:amazon.in OR site:nykaa.com OR site:flipkart.com')}`} target="_blank" rel="noopener noreferrer">View Product</a>
+                                </Button>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             ))}
@@ -372,62 +592,43 @@ export default function ReportPage() {
                   <h3 className="text-xl font-semibold text-gray-800 mb-3">
                     Step {stepIndex + 1}: {step.title}
                   </h3>
-                  <p className="text-gray-700 mb-2">{step.description}</p>
+                  <p className="text-gray-700 mb-4">{step.description}</p>
+                  {step.productOptions && step.productOptions.length > 0 && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {step.productOptions.slice(0, 2).map((product, idx) => (
+                        <Card key={`night-step-${stepIndex}-opt-${idx}`} className="border-lavender-100 bg-lavender-50/30 shadow-xs flex flex-col">
+                          <CardContent className="p-4 flex items-start gap-4">
+                            <div className="relative w-14 h-14 md:w-16 md:h-16 rounded-full border border-lavender-200 bg-white overflow-hidden flex-shrink-0 flex items-center justify-center">
+                              <Image
+                                src={product.image || "/placeholder.jpg"}
+                                alt={product.name}
+                                fill
+                                className="object-contain p-1"
+                                sizes="64px"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-base font-semibold text-gray-800">{product.name}</h4>
+                              <p className="text-sm text-gray-600 mt-1 break-words whitespace-normal"><span className="font-medium">How to use:</span> {product.usage}</p>
+                              <p className="text-xs text-gray-500 mt-1 break-words whitespace-normal"><span className="font-medium">Key Ingredients:</span> {product.ingredients.join(", ")}</p>
+                              <div className="mt-2">
+                                <Button variant="outline" size="sm" className="border-lavender-200 text-lavender-600 hover:bg-lavender-100 bg-transparent" asChild>
+                                  <a href={`https://www.google.com/search?q=${encodeURIComponent(product.name + ' site:amazon.in OR site:nykaa.com OR site:flipkart.com')}`} target="_blank" rel="noopener noreferrer">View Product</a>
+                                </Button>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             ))}
           </div>
         </section>
 
-        {/* Recommended Products Section */}
-        <section className="mb-10">
-          <CardHeader className="px-0 pt-0 pb-4">
-            <CardTitle className="text-3xl font-bold text-gray-900 flex items-center">
-              <Sparkles className="w-7 h-7 mr-3 text-purple-500" /> Recommended Products
-            </CardTitle>
-            <p className="text-gray-600 mt-2">
-              Handpicked products to complement your routine. Click to learn more or purchase.
-            </p>
-          </CardHeader>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {reportContent.products.map((product) => (
-              <Card key={product.id} className="border-lavender-100 bg-lavender-50/30 shadow-xs flex flex-col items-center text-center">
-                <CardContent className="p-6 flex flex-col items-center">
-                  <Image
-                    src={product.image || "/placeholder.svg"}
-                    alt={product.name}
-                    width={80}
-                    height={80}
-                    className="rounded-full object-cover mb-3 border border-lavender-200"
-                  />
-                  <h4 className="text-lg font-medium text-gray-800 mb-1">
-                    {product.name}
-                  </h4>
-                  <p className="text-sm text-gray-600 mb-2">
-                    How to use: {product.usage}
-                  </p>
-                  <p className="text-xs text-gray-500 mb-3">
-                    Key Ingredients: {product.ingredients.join(", ")}
-                  </p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="border-lavender-200 text-lavender-600 hover:bg-lavender-100 bg-transparent"
-                    asChild
-                  >
-                    <a
-                      href={product.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      View Product
-                    </a>
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </section>
+        {/* Recommended Products Section - removed as requested */}
 
         <Separator className="my-8 bg-gray-100" />
 
