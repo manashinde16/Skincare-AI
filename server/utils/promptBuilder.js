@@ -5,25 +5,12 @@
  * We ask the model to return STRICT JSON with a known shape.
  */
 export function buildSkincarePrompt(form) {
-  // Pull common fields safely
-  const {
-    gender,
-    age,
-    skinType,
-    skinConcerns,
-    allergies,
-    sensitivities,
-    lifestyle = {}, // waterIntake, sleepHours, stressLevel, exerciseFrequency, dietDescription, etc.
-    history = {}, // skincare history answers
-    goals,
-    climate,
-    location,
-  } = form;
+  const userResponses = JSON.stringify(form, null, 2);
 
   return `
-You are a skincare specialist AI. Based on the following questionnaire responses, generate a **personalized skincare routine**.  
+You are a skincare specialist AI. Based on the following questionnaire responses, generate a **personalized skincare routine**.
 
-The output must be ONLY valid JSON (no text outside JSON).  
+The output must be ONLY valid JSON (no text outside JSON).
 The JSON should follow this exact schema:
 
 {
@@ -31,14 +18,42 @@ The JSON should follow this exact schema:
     {
       "step": number,
       "title": string,
-      "description": string
+      "description": string,
+      "productOptions": [
+        {
+          "name": string,
+          "howToUse": string,
+          "keyIngredients": [ string ],
+          "productLink": string
+        },
+        {
+          "name": string,
+          "howToUse": string,
+          "keyIngredients": [ string ],
+          "productLink": string
+        }
+      ]
     }
   ],
   "NightRoutine": [
     {
       "step": number,
       "title": string,
-      "description": string
+      "description": string,
+      "productOptions": [
+        {
+          "name": string,
+          "howToUse": string,
+          "keyIngredients": [ string ],
+          "productLink": string
+        },
+        {
+          "name": string,
+          "howToUse": string,
+          "keyIngredients": [ string ],
+          "productLink": string
+        }
+      ]
     }
   ],
   "Lifestyle": {
@@ -58,17 +73,21 @@ The JSON should follow this exact schema:
 
 ⚠️ IMPORTANT RULES:
 - Do NOT return anything outside of this JSON format.
-- Every product must have a **productLink**.  
-   - If an official/recommended product link is available, use it.  
-   - If not, create a Google search link in this format:  
-     "https://www.google.com/search?q=<Product+Name>"  
-     (replace spaces with '+').  
+- Every product must have a **productLink**.
+  - If an official/recommended product link is available, use it.
+  - If not, create a Google search link in this format:
+    "https://www.google.com/search?q=<Product+Name>"
+    (replace spaces with '+').
 - Always give at least 3 products.
 - Fill every section, even if the user skips some answers.
 - If unsure, give safe generic recommendations.
+- Prefer products available in India (Amazon India, Nykaa, Flipkart, Indian brands like Cetaphil India, Minimalist, Lakme, Nivea India, etc.). Provide India-available links wherever possible.
+- For each routine step, provide exactly TWO productOptions (A or B) tailored to that step.
 
-Here are the user’s answers to the questionnaire:
-{{user_responses}}
+Here are the user’s answers to the questionnaire (full JSON):
+${userResponses}
+
+The user has also provided 3 skin images (attached separately). Use both the answers and these images to generate recommendations.
 
 `;
 }
