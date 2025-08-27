@@ -58,9 +58,9 @@ export default function Header() {
       <header
         className={`
              fixed top-0 left-0 z-50 w-full px-6
-             bg-white/80 dark:bg-neutral-900/70 backdrop-blur-lg shadow-lg
-             border border-white/30 dark:border-white/10
-             transition-all duration-300 ease-out
+             bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl shadow-2xl
+             border border-white/40 dark:border-white/20
+             transition-all duration-500 ease-out
            `}
         style={{
           height: `${64 - scrollProgress * 16}px`,
@@ -75,9 +75,9 @@ export default function Header() {
           transform: scrollProgress > 0.1 ? "translateX(-50%)" : "none",
           boxShadow:
             scrollProgress > 0.1
-              ? `0 10px 25px -5px rgba(0, 0, 0, ${0.1 + scrollProgress * 0.1})`
-              : "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-          backgroundColor: `rgba(255, 255, 255, ${0.8 - scrollProgress * 0.4})`,
+              ? `0 20px 40px -10px rgba(0, 0, 0, ${0.15 + scrollProgress * 0.1})`
+              : "0 8px 32px -4px rgba(0, 0, 0, 0.1)",
+          backgroundColor: `rgba(255, 255, 255, ${0.9 - scrollProgress * 0.4})`,
         }}
       >
         <div
@@ -87,18 +87,19 @@ export default function Header() {
               : "container mx-auto px-4 sm:px-6"
           }`}
         >
-          <Link href="/" className="flex items-center space-x-2 group">
+          <Link href="/" className="flex items-center space-x-3 group">
             <div
               className={`
-                flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-lavender-400 to-pink-400
-                shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300
+                flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-purple-600
+                shadow-xl group-hover:shadow-2xl group-hover:scale-110 transition-all duration-500
               `}
             >
-              <Sparkles className="h-5 w-5 text-white group-hover:rotate-12 transition-transform duration-300" />
+              <Sparkles className="h-6 w-6 text-white group-hover:rotate-12 transition-transform duration-500" />
             </div>
             <span
               className={`
-                text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-100 group-hover:text-gray-900 transition-all duration-300
+                text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent
+                group-hover:scale-105 transition-transform duration-300
               `}
             >
               Skincare AI
@@ -113,9 +114,9 @@ export default function Header() {
     <header
       className={`
           fixed top-0 left-0 z-50 w-full px-6
-          bg-white/80 dark:bg-neutral-900/70 backdrop-blur-lg shadow-lg
-          border border-white/30 dark:border-white/10
-          transition-all duration-300 ease-out
+          bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl shadow-2xl
+          border border-white/40 dark:border-white/20
+          transition-all duration-500 ease-out
         `}
       style={{
         height: `${78 - scrollProgress * 16}px`,
@@ -129,9 +130,9 @@ export default function Header() {
         transform: scrollProgress > 0.1 ? "translateX(-50%)" : "none",
         boxShadow:
           scrollProgress > 0.1
-            ? `0 10px 25px -5px rgba(0, 0, 0, ${0.1 + scrollProgress * 0.1})`
-            : "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-        backgroundColor: `rgba(255, 255, 255, ${0.8 - scrollProgress * 0.4})`,
+            ? `0 20px 40px -10px rgba(0, 0, 0, ${0.15 + scrollProgress * 0.1})`
+            : "0 8px 32px -4px rgba(0, 0, 0, 0.1)",
+        backgroundColor: `rgba(255, 255, 255, ${0.9 - scrollProgress * 0.4})`,
       }}
     >
       <div
@@ -141,28 +142,29 @@ export default function Header() {
             : "container mx-auto px-4 sm:px-6"
         }`}
       >
-        <Link href="/" className="flex items-center space-x-2 group">
+        <Link href="/" className="flex items-center space-x-3 group">
           <div
             className={`
-               flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-lavender-400 to-pink-400
-               shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300
+               flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-purple-600
+               shadow-xl group-hover:shadow-2xl group-hover:scale-110 transition-all duration-500
              `}
           >
-            <Sparkles className="h-5 w-5 text-white group-hover:rotate-12 transition-transform duration-300" />
+            <Sparkles className="h-6 w-6 text-white group-hover:rotate-12 transition-transform duration-500" />
           </div>
           <span
             className={`
-               text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-100 group-hover:text-gray-900 transition-all duration-300
+               text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent
+               group-hover:scale-105 transition-transform duration-300
              `}
           >
             Skincare AI
           </span>
         </Link>
 
-        <div className="flex items-center space-x-2 sm:space-x-4">
+        <div className="flex items-center space-x-3 sm:space-x-4">
           <Button
             variant="ghost"
-            className="h-10 w-10 rounded-full p-0 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:scale-110 transition-all duration-500 ease-out"
+            className="h-11 w-11 rounded-full p-0 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:scale-110 transition-all duration-500 ease-out shadow-lg hover:shadow-xl"
             onClick={() => setTheme(currentTheme === "dark" ? "light" : "dark")}
             aria-label="Toggle theme"
             title="Toggle theme"
@@ -178,11 +180,11 @@ export default function Header() {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="h-10 w-10 rounded-full p-0 hover:bg-gray-100 hover:scale-110 transition-all duration-500 ease-out"
+                  className="h-11 w-11 rounded-full p-0 hover:bg-gray-100 hover:scale-110 transition-all duration-500 ease-out shadow-lg hover:shadow-xl"
                 >
-                  <Avatar className="h-8 w-8 ring-2 ring-gray-200 hover:ring-gray-300 transition-all duration-500 ease-out">
+                  <Avatar className="h-9 w-9 ring-2 ring-gray-200 hover:ring-blue-300 transition-all duration-500 ease-out">
                     <AvatarImage src="/placeholder.svg?height=32&width=32" />
-                    <AvatarFallback className="bg-gradient-to-br from-lavender-400 to-pink-400 text-white text-sm font-medium">
+                    <AvatarFallback className="bg-gradient-to-br from-blue-600 to-purple-600 text-white text-sm font-semibold">
                       {getInitials(user.name)}
                     </AvatarFallback>
                   </Avatar>
@@ -190,11 +192,11 @@ export default function Header() {
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
-                className="w-56 rounded-2xl border-gray-200 dark:border-white/10 bg-white dark:bg-neutral-900 shadow-xl"
+                className="w-56 rounded-2xl border-gray-200 dark:border-white/10 bg-white dark:bg-neutral-900 shadow-2xl"
               >
-                <div className="flex items-center justify-start gap-2 p-2">
+                <div className="flex items-center justify-start gap-3 p-3">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none text-gray-900 dark:text-gray-100">
+                    <p className="text-sm font-semibold leading-none text-gray-900 dark:text-gray-100">
                       {user.name}
                     </p>
                     <p className="text-xs leading-none text-gray-500 dark:text-gray-400">
@@ -218,8 +220,8 @@ export default function Header() {
                 <Button
                   variant="ghost"
                   className={`
-                        text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800 rounded-full px-3 sm:px-6
-                        transition-all duration-500 ease-out hover:scale-105 font-medium text-sm sm:text-base
+                        text-gray-900 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800 rounded-full px-4 sm:px-6
+                        transition-all duration-500 ease-out hover:scale-105 font-medium text-sm sm:text-base shadow-lg hover:shadow-xl
                       `}
                 >
                   Login
@@ -228,8 +230,8 @@ export default function Header() {
               <Link href="/signup">
                 <Button
                   className={`
-                        bg-gradient-to-r from-lavender-500 to-pink-500 hover:from-lavender-600 hover:to-pink-600 
-                        text-white rounded-full px-3 sm:px-6 shadow-lg hover:shadow-xl
+                        bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 
+                        text-white rounded-full px-4 sm:px-6 shadow-xl hover:shadow-2xl
                         transition-all duration-500 ease-out hover:scale-105 font-medium text-sm sm:text-base
                       `}
                 >

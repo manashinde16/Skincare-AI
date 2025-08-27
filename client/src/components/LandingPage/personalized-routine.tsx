@@ -12,7 +12,9 @@ import {
   SunMedium,
   Eye,
   CloverIcon as Cream,
-} from "lucide-react"; // Re-added Cream and Eye icons
+  Zap,
+  Clock,
+} from "lucide-react";
 import Link from "next/link";
 
 interface Product {
@@ -27,8 +29,10 @@ interface Product {
 interface RoutineStep {
   title: string;
   icon: React.ReactNode;
-  products: Product[]; // Will contain only one product for this design
+  products: Product[];
   microcopy: string;
+  time: string;
+  color: string;
 }
 
 interface RoutineData {
@@ -43,8 +47,10 @@ const morningRoutineData: RoutineData = {
   steps: [
     {
       title: "Cleanse",
-      icon: <Droplet className="w-6 h-6 text-lavender-600" />,
+      icon: <Droplet className="w-6 h-6 text-blue-600" />,
       microcopy: "Removes impurities and preps your skin for the day.",
+      time: "2 min",
+      color: "from-blue-500 to-blue-600",
       products: [
         {
           id: 1,
@@ -59,8 +65,10 @@ const morningRoutineData: RoutineData = {
     },
     {
       title: "Treat",
-      icon: <FlaskConical className="w-6 h-6 text-lavender-600" />,
+      icon: <FlaskConical className="w-6 h-6 text-purple-600" />,
       microcopy: "Targets specific concerns like brightening or anti-aging.",
+      time: "1 min",
+      color: "from-purple-500 to-purple-600",
       products: [
         {
           id: 1,
@@ -75,8 +83,10 @@ const morningRoutineData: RoutineData = {
     },
     {
       title: "Moisturize",
-      icon: <Cream className="w-6 h-6 text-lavender-600" />, // Using Cream icon
+      icon: <Cream className="w-6 h-6 text-green-600" />,
       microcopy: "Hydrates and nourishes your skin, locking in moisture.",
+      time: "1 min",
+      color: "from-green-500 to-green-600",
       products: [
         {
           id: 1,
@@ -91,9 +101,11 @@ const morningRoutineData: RoutineData = {
     },
     {
       title: "Protect",
-      icon: <SunMedium className="w-6 h-6 text-lavender-600" />,
+      icon: <SunMedium className="w-6 h-6 text-orange-600" />,
       microcopy:
         "Shields your skin from UV damage and environmental stressors.",
+      time: "1 min",
+      color: "from-orange-500 to-orange-600",
       products: [
         {
           id: 1,
@@ -115,8 +127,10 @@ const nightRoutineData: RoutineData = {
   steps: [
     {
       title: "Double Cleanse",
-      icon: <Droplet className="w-6 h-6 text-lavender-600" />,
+      icon: <Droplet className="w-6 h-6 text-blue-600" />,
       microcopy: "Removes makeup and deep cleanses for a fresh start.",
+      time: "3 min",
+      color: "from-blue-500 to-blue-600",
       products: [
         {
           id: 1,
@@ -131,9 +145,11 @@ const nightRoutineData: RoutineData = {
     },
     {
       title: "Treat",
-      icon: <FlaskConical className="w-6 h-6 text-lavender-600" />,
+      icon: <FlaskConical className="w-6 h-6 text-purple-600" />,
       microcopy:
         "Applies active ingredients for repair and regeneration overnight.",
+      time: "1 min",
+      color: "from-purple-500 to-purple-600",
       products: [
         {
           id: 1,
@@ -148,8 +164,10 @@ const nightRoutineData: RoutineData = {
     },
     {
       title: "Eye Care",
-      icon: <Eye className="w-6 h-6 text-lavender-600" />, // Using Eye icon
+      icon: <Eye className="w-6 h-6 text-pink-600" />,
       microcopy: "Nourishes the delicate skin around your eyes.",
+      time: "1 min",
+      color: "from-pink-500 to-pink-600",
       products: [
         {
           id: 1,
@@ -164,8 +182,10 @@ const nightRoutineData: RoutineData = {
     },
     {
       title: "Moisturize",
-      icon: <Cream className="w-6 h-6 text-lavender-600" />, // Using Cream icon
+      icon: <Cream className="w-6 h-6 text-green-600" />,
       microcopy: "Hydrates and nourishes your skin while you sleep.",
+      time: "1 min",
+      color: "from-green-500 to-green-600",
       products: [
         {
           id: 1,
@@ -196,28 +216,36 @@ export default function PersonalizedRoutine() {
     setTimeout(() => {
       setActiveRoutine(routine);
       setIsTransitioning(false);
-    }, 300); // Match CSS transition duration
+    }, 300);
   };
 
   return (
-    <section className="py-20 relative bg-gradient-to-br from-pink-50/30 via-white/60 to-lavender-50/30 backdrop-blur-sm">
+    <section className="py-16 sm:py-20 lg:py-24 relative">
       <div className="container mx-auto px-4 relative z-10 text-center">
-        <div className="mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl mb-4">
-            Your Personalized Routine
+        <div className="mb-16">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full text-sm font-medium mb-4">
+            <Zap className="h-4 w-4" />
+            Personalized Routines
+          </div>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
+            Your{" "}
+            <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+              Personalized Routine
+            </span>
           </h2>
-          <p className="text-lg text-gray-700 max-w-2xl mx-auto mb-8">
-            Morning and Night routines made just for your skin
+          <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+            Morning and Night routines made just for your skin, optimized by AI for maximum results
           </p>
 
+          {/* Routine Toggle */}
           <div className="flex items-center justify-center space-x-4">
             <Button
               variant={activeRoutine === "morning" ? "default" : "outline"}
               onClick={() => handleToggle("morning")}
-              className={`rounded-full px-6 py-2 ${
+              className={`rounded-full px-8 py-3 text-lg font-semibold transition-all duration-300 ${
                 activeRoutine === "morning"
-                  ? "bg-gradient-to-r from-lavender-500 to-pink-500 text-white"
-                  : "border-lavender-200 text-lavender-600 hover:bg-lavender-50"
+                  ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-xl hover:shadow-2xl hover:scale-105"
+                  : "border-2 border-gray-300 text-gray-700 hover:border-blue-500 hover:bg-blue-50 hover:scale-105"
               }`}
             >
               {morningRoutineData.icon}
@@ -226,10 +254,10 @@ export default function PersonalizedRoutine() {
             <Button
               variant={activeRoutine === "night" ? "default" : "outline"}
               onClick={() => handleToggle("night")}
-              className={`rounded-full px-6 py-2 ${
+              className={`rounded-full px-8 py-3 text-lg font-semibold transition-all duration-300 ${
                 activeRoutine === "night"
-                  ? "bg-gradient-to-r from-lavender-500 to-pink-500 text-white"
-                  : "border-lavender-200 text-lavender-600 hover:bg-lavender-50"
+                  ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-xl hover:shadow-2xl hover:scale-105"
+                  : "border-2 border-gray-300 text-gray-700 hover:border-purple-500 hover:bg-purple-50 hover:scale-105"
               }`}
             >
               {nightRoutineData.icon}
@@ -238,48 +266,90 @@ export default function PersonalizedRoutine() {
           </div>
         </div>
 
+        {/* Routine Steps */}
         <div
-          key={activeRoutine} // Key change triggers re-mount and animation
-          className={`transition-opacity duration-300 ${
-            isTransitioning ? "opacity-0" : "opacity-100"
+          key={activeRoutine}
+          className={`transition-all duration-500 ${
+            isTransitioning ? "opacity-0 scale-95" : "opacity-100 scale-100"
           }`}
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
             {currentRoutine.steps.map((step, index) => (
               <div
                 key={index}
-                className="p-4 rounded-lg border border-lavender-100/50 bg-white/80 backdrop-blur-sm shadow-sm flex flex-col items-center text-center"
+                className="group bg-white rounded-2xl border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-2 overflow-hidden"
+                style={{ animationDelay: `${index * 0.1}s` }}
               >
-                <div className="flex items-center justify-center w-10 h-10 bg-lavender-100 rounded-full mb-2">
-                  {step.icon}
+                {/* Step Header */}
+                <div className={`p-6 bg-gradient-to-br ${step.color} text-white text-center`}>
+                  <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-white/20 rounded-2xl">
+                    {step.icon}
+                  </div>
+                  <h3 className="font-bold text-xl mb-2">{step.title}</h3>
+                  <div className="flex items-center justify-center gap-2 text-white/90">
+                    <Clock className="h-4 w-4" />
+                    <span className="text-sm font-medium">{step.time}</span>
+                  </div>
                 </div>
-                <h3 className="font-semibold text-gray-900 text-lg">
-                  {step.title}
-                </h3>
-                <p className="text-gray-600 text-sm mt-1 line-clamp-1">
-                  {step.microcopy}
-                </p>
-                {step.products.length > 0 && (
-                  <>
-                    <p className="text-gray-800 font-medium text-sm mt-2 line-clamp-1">
-                      {step.products[0].name}
-                    </p>
-                    <Link
-                      href={step.products[0].link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Button
-                        variant="link"
-                        className="text-lavender-600 hover:text-lavender-700 text-sm p-0 h-auto mt-2"
+
+                {/* Step Content */}
+                <div className="p-6">
+                  <p className="text-gray-600 text-sm mb-4 leading-relaxed">
+                    {step.microcopy}
+                  </p>
+                  
+                  {step.products.length > 0 && (
+                    <div className="space-y-3">
+                      <div className="p-3 bg-gray-50 rounded-xl">
+                        <p className="text-gray-800 font-semibold text-sm mb-1">
+                          {step.products[0].name}
+                        </p>
+                        <p className="text-gray-600 text-xs leading-relaxed">
+                          {step.products[0].usage}
+                        </p>
+                      </div>
+                      
+                      <div className="flex flex-wrap gap-1">
+                        {step.products[0].ingredients.slice(0, 2).map((ingredient, idx) => (
+                          <span
+                            key={idx}
+                            className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full"
+                          >
+                            {ingredient}
+                          </span>
+                        ))}
+                      </div>
+                      
+                      <Link
+                        href={step.products[0].link}
+                        target="_blank"
+                        rel="noopener noreferrer"
                       >
-                        View Product
-                      </Button>
-                    </Link>
-                  </>
-                )}
+                        <Button
+                          variant="outline"
+                          className="w-full border-gray-300 hover:border-blue-500 hover:bg-blue-50 text-sm"
+                        >
+                          View Product
+                        </Button>
+                      </Link>
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
+          </div>
+
+          {/* Bottom CTA */}
+          <div className="mt-16">
+            <p className="text-lg text-gray-600 mb-6">
+              Ready to get your personalized routine?
+            </p>
+            <Link href="/analyze">
+              <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-full px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+                <Zap className="h-5 w-5 mr-2" />
+                Get My Routine
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
