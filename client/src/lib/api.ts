@@ -58,3 +58,14 @@ export async function logout() {
 
   return res.json();
 }
+
+export async function getSkincareHistory() {
+  const res = await fetch(`${API_BASE_URL}/api/ai/history`, {
+    method: "GET",
+    credentials: "include",
+  });
+  if (!res.ok) {
+    throw new Error("Failed to fetch history");
+  }
+  return res.json();
+}

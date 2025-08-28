@@ -5,8 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Mic, MicOff, AlertTriangle, Package, Target, MessageSquare } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { AnalysisData } from "../page";
+import Link from "next/link";
+import { Card } from "@/components/ui/card";
+import { getSkincareHistory } from "@/lib/api";
 
 interface SkincareHistoryStepProps {
   data: AnalysisData;
@@ -32,6 +35,31 @@ export default function SkincareHistoryStep({
   updateData,
 }: SkincareHistoryStepProps) {
   const [isRecording, setIsRecording] = useState(false);
+  const [historyItems, setHistoryItems] = useState<Array<{ id: string; createdAt: string; data: unknown }>>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [historyError, setHistoryError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    const run = async () => {
+      setLoadingHistory(true);
+      setHistoryError(null);
+      try {
+        const res = await getSkincareHistory();
+        if (!mounted) return;
+        setHistoryItems(Array.isArray(res.items) ? res.items : []);
+      } catch (e: any) {
+        if (!mounted) return;
+        setHistoryError(e?.message || "Failed to load your history");
+      } finally {
+        if (mounted) setLoadingHistory(false);
+      }
+    };
+    run();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const toggleConcern = (concern: string) => {
     const updatedConcerns = data.concerns.includes(concern)
@@ -47,6 +75,41 @@ export default function SkincareHistoryStep({
 
   return (
     <div className="space-y-8">
+      {/* Previous Analyses (from your account) */}
+      <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl text-white">
+            <Package className="h-6 w-6" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900">
+            Your Recent Analyses
+          </h3>
+        </div>
+        {loadingHistory && (
+          <p className="text-sm text-gray-600">Loading your history…</p>
+        )}
+        {historyError && (
+          <p className="text-sm text-red-600">{historyError}</p>
+        )}
+        {!loadingHistory && !historyError && historyItems.length === 0 && (
+          <p className="text-sm text-gray-600">No past analyses yet. Complete one to see it here.</p>
+        )}
+        {!loadingHistory && !historyError && historyItems.length > 0 && (
+          <div className="space-y-3">
+            {historyItems.slice(0, 5).map((h) => (
+              <Card key={h.id} className="p-3 bg-white border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">Completed skin analysis</p>
+                    <p className="text-xs text-gray-500">{new Date(h.createdAt).toLocaleString()}</p>
+                  </div>
+                  <Link href={`/report?analysisId=${h.id}`} className="text-xs text-blue-600 hover:underline whitespace-nowrap">View report</Link>
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
       {/* Header */}
       <div className="text-center mb-8">
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full text-sm font-medium mb-4">

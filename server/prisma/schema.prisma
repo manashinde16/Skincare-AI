@@ -20,4 +20,15 @@ model User {
   passwordHash String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  skincareHistories SkincareHistory[]
+}
+
+model SkincareHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  data      Json     // Store full Gemini JSON here
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
 }

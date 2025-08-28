@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -11,9 +11,35 @@ import { Separator } from "@/components/ui/separator";
 import { MoreHorizontal, LogOut, Sparkles, TrendingUp, Clock, Star, Plus, Search, BarChart3, Settings, User, Zap, FileText } from "lucide-react";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
+import { getSkincareHistory } from "@/lib/api";
 
 export default function DashboardPage() {
-  const isNewUser = false; // computed in sidebar via history length; title uses placeholder here
+  const isNewUser = false; // will derive below after fetching history
+  const [history, setHistory] = useState<Array<{ id: string; createdAt: string; data: unknown }>>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [historyError, setHistoryError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    const run = async () => {
+      setLoadingHistory(true);
+      setHistoryError(null);
+      try {
+        const res = await getSkincareHistory();
+        if (!mounted) return;
+        setHistory(Array.isArray(res.items) ? res.items : []);
+      } catch (e: any) {
+        if (!mounted) return;
+        setHistoryError(e?.message || "Failed to load history");
+      } finally {
+        if (mounted) setLoadingHistory(false);
+      }
+    };
+    run();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const productImages = useMemo(
     () =>
@@ -135,7 +161,7 @@ export default function DashboardPage() {
               </div>
             </section>
 
-            {/* Recent Activity */}
+            {/* Recent Activity (real data if available) */}
             <section className="mb-8 sm:mb-12">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-3">
                 <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Recent Activity</h2>
@@ -145,29 +171,32 @@ export default function DashboardPage() {
               </div>
               
               <div className="space-y-3 sm:space-y-4">
-                {[
-                  { action: "Completed skin analysis", time: "2 hours ago", type: "analysis" },
-                  { action: "Updated skincare routine", time: "1 day ago", type: "routine" },
-                  { action: "Added new product", time: "3 days ago", type: "product" },
-                  { action: "Scheduled follow-up", time: "1 week ago", type: "reminder" }
-                ].map((item, i) => (
-                  <Card key={i} className="p-3 sm:p-4 bg-white border-0 shadow-sm hover:shadow-md transition-all duration-300">
+                {loadingHistory && (
+                  <Card className="p-3 sm:p-4 bg-white border-0 shadow-sm">
+                    <div className="text-sm text-gray-600">Loading history…</div>
+                  </Card>
+                )}
+                {historyError && (
+                  <Card className="p-3 sm:p-4 bg-white border-0 shadow-sm">
+                    <div className="text-sm text-red-600">{historyError}</div>
+                  </Card>
+                )}
+                {!loadingHistory && !historyError && history.length === 0 && (
+                  <Card className="p-3 sm:p-4 bg-white border-0 shadow-sm">
+                    <div className="text-sm text-gray-600">No analyses yet. Start your first one!</div>
+                  </Card>
+                )}
+                {!loadingHistory && !historyError && history.map((h) => (
+                  <Card key={h.id} className="p-3 sm:p-4 bg-white border-0 shadow-sm hover:shadow-md transition-all duration-300">
                     <div className="flex items-center gap-3 sm:gap-4">
-                      <div className={`p-1.5 sm:p-2 rounded-full ${
-                        item.type === 'analysis' ? 'bg-blue-100 text-blue-600' :
-                        item.type === 'routine' ? 'bg-green-100 text-green-600' :
-                        item.type === 'product' ? 'bg-purple-100 text-purple-600' :
-                        'bg-orange-100 text-orange-600'
-                      }`}>
-                        {item.type === 'analysis' && <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4" />}
-                        {item.type === 'routine' && <Zap className="h-3 w-3 sm:h-4 sm:w-4" />}
-                        {item.type === 'product' && <Plus className="h-3 w-3 sm:h-4 sm:w-4" />}
-                        {item.type === 'reminder' && <Clock className="h-3 w-3 sm:h-4 sm:w-4" />}
+                      <div className="p-1.5 sm:p-2 rounded-full bg-blue-100 text-blue-600">
+                        <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-gray-900 text-sm sm:text-base truncate">{item.action}</p>
-                        <p className="text-xs sm:text-sm text-gray-500">{item.time}</p>
+                        <p className="font-medium text-gray-900 text-sm sm:text-base truncate">Completed skin analysis</p>
+                        <p className="text-xs sm:text-sm text-gray-500">{new Date(h.createdAt).toLocaleString()}</p>
                       </div>
+                      <Link href={`/report?analysisId=${h.id}`} className="text-xs sm:text-sm text-blue-600 hover:underline">View</Link>
                     </div>
                   </Card>
                 ))}

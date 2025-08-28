@@ -5,6 +5,8 @@ import genai from "../services/genaiClient.js";
 import { ai } from "../services/genaiClient.js";
 import { buildSkincarePrompt } from "../utils/promptBuilder.js";
 import { z } from "zod";
+import { verifyJwt } from "../src/lib/jwt.js";
+import { prisma } from "../src/lib/prisma.js";
 
 const router = express.Router();
 
@@ -25,10 +27,10 @@ router.post("/generate", upload.array("images", 3), async (req, res) => {
       });
     }
     const form = parsed.data;
-    console.log("Final Prompt Form Data:", form);
+    // console.log("Final Prompt Form Data:", form);
 
     files = req.files || [];
-    console.log("Uploaded Files:", files);
+    // console.log("Uploaded Files:", files);
     if (files.length !== 3) {
       return res.status(400).json({
         ok: false,
@@ -65,13 +67,13 @@ router.post("/generate", upload.array("images", 3), async (req, res) => {
     // 3) Build prompt with all questionnaire data (server-side)\
 
     const finalPrompt = buildSkincarePrompt(form);
-    console.log("Final Prompt String:", finalPrompt);
+    // console.log("Final Prompt String:", finalPrompt);
 
     // 4) Create Gemini content parts (prompt + image parts)
     const parts = uploaded.map(({ uri, mimeType }) =>
       genai.createPartFromUri(uri, mimeType)
     );
-    console.log("Image Parts:", parts);
+    // console.log("Image Parts:", parts);
     const contents = [genai.createUserContent([finalPrompt, ...parts])];
 
     const model = "gemini-2.5-flash";
@@ -81,11 +83,30 @@ router.post("/generate", upload.array("images", 3), async (req, res) => {
     const raw = response.text ?? JSON.stringify(response);
     const json = coerceJson(raw);
 
-    console.log("Gemini API Response:", response);
-    console.log("Final Gemini Raw Response:", raw);
-    console.log("Final Gemini JSON:", json);
+    // console.log("Gemini API Response:", response);
+    // console.log("Final Gemini Raw Response:", raw);
+    // console.log("Final Gemini JSON:", json);
 
-    // 6) Cleanup temp files
+    // 6) If user is authenticated, persist result to DB
+    try {
+      const token = req.cookies?.token || (req.headers["authorization"] || "").split(" ")[1];
+      if (token) {
+        const payload = verifyJwt(token);
+        if (payload?.sub) {
+          await prisma.skincareHistory.create({
+            data: {
+              userId: payload.sub,
+              data: json,
+            },
+          });
+        }
+      }
+    } catch (persistErr) {
+      console.error("Persist skincare history failed:", persistErr);
+      // Don't fail the request if saving fails; proceed to return the result
+    }
+
+    // 7) Cleanup temp files
     await safeCleanup(files);
 
     return res.json({ ok: true, result: json });
@@ -95,6 +116,28 @@ router.post("/generate", upload.array("images", 3), async (req, res) => {
     return res
       .status(500)
       .json({ ok: false, error: err?.message || "Internal error" });
+  }
+});
+
+// Return authenticated user's skincare history (most recent first)
+router.get("/history", async (req, res) => {
+  try {
+    const token = req.cookies?.token || (req.headers["authorization"] || "").split(" ")[1];
+    if (!token) return res.status(401).json({ error: "Unauthorized" });
+    const payload = verifyJwt(token);
+    if (!payload?.sub) return res.status(401).json({ error: "Unauthorized" });
+
+    const items = await prisma.skincareHistory.findMany({
+      where: { userId: payload.sub },
+      orderBy: { createdAt: "desc" },
+      take: 20,
+      select: { id: true, createdAt: true, data: true },
+    });
+
+    return res.json({ ok: true, items });
+  } catch (err) {
+    console.error("history error:", err);
+    return res.status(500).json({ ok: false, error: "Internal error" });
   }
 });
 

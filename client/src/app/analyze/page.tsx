@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -12,7 +12,7 @@ import SkincareHistoryStep from "./components/skincare-history-step";
 import GenderSpecificQuestionsStep from "./components/gender-specific-questions-step";
 import LifestyleHabitsStep from "./components/lifestyle-habits-step";
 import SubmitStep from "./components/submit-step";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import type { AnalysisData as FullAnalysisData } from "@/utils/payload-builder";
 import type { FormSubmissionResponse } from "../../utils/form-submission";
 
@@ -40,6 +40,7 @@ const steps = [
 
 export default function AnalyzePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [currentStep, setCurrentStep] = useState(1);
   const [analysisData, setAnalysisData] = useState<AnalysisData>({
     gender: "",
@@ -74,6 +75,31 @@ export default function AnalyzePage() {
     consumptionSugarCaffeineAlcohol: "",
     currentMedicationsSupplements: "",
   });
+
+  // Resume flow after login/signup
+  const [shouldAutoStart, setShouldAutoStart] = useState(false);
+
+  // On mount: if resume flag present and we have pending data in localStorage, restore it
+  useEffect(() => {
+    const resumeParam = searchParams.get("resume");
+    const autoStartParam = searchParams.get("autostart");
+    if (resumeParam === "1") {
+      try {
+        const saved = typeof window !== "undefined" ? localStorage.getItem("pendingAnalysisData") : null;
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          setAnalysisData((prev) => ({ ...prev, ...parsed }));
+          setCurrentStep(steps.length);
+          if (autoStartParam === "1") {
+            setShouldAutoStart(true);
+          }
+        }
+      } catch (e) {
+        console.error("Failed to restore pending analysis data", e);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const updateAnalysisData = (updates: Partial<AnalysisData>) => {
     setAnalysisData((prev) => ({ ...prev, ...updates }));
@@ -147,6 +173,8 @@ export default function AnalyzePage() {
           "skincareReportData",
           JSON.stringify(response.result)
         );
+        // Clear pending draft if present
+        localStorage.removeItem("pendingAnalysisData");
       }
       router.push("/report");
     } catch (error) {
@@ -193,7 +221,7 @@ export default function AnalyzePage() {
           />
         );
       case 6:
-        return <SubmitStep data={analysisData} onSubmit={handleSubmit} />;
+        return <SubmitStep data={analysisData} onSubmit={handleSubmit} autoStart={shouldAutoStart} />;
       default:
         return null;
     }
