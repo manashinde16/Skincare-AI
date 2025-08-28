@@ -2,7 +2,7 @@
 
 import type React from "react";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +20,7 @@ import { useAuth } from "@/contexts/AuthContext";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login: authLogin } = useAuth();
 
   const [formData, setFormData] = useState({
@@ -61,7 +62,8 @@ export default function LoginPage() {
     try {
       const response = await login(formData.email, formData.password);
       authLogin(response.user);
-      router.push("/dashboard");
+      const next = searchParams.get("next");
+      router.push(next || "/dashboard");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setServerError(err.message);

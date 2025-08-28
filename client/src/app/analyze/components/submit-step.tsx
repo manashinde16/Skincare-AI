@@ -10,19 +10,25 @@ import {
   type FormSubmissionResponse,
 } from "../../../utils/form-submission";
 import { useToast } from "../../../hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
+import { fileToBase64 } from "@/utils/image-utils";
 
 interface SubmitStepProps {
   data: AnalysisData;
   onSubmit: (response: FormSubmissionResponse) => Promise<void>;
+  autoStart?: boolean;
 }
 
-export default function SubmitStep({ data, onSubmit }: SubmitStepProps) {
+export default function SubmitStep({ data, onSubmit, autoStart = false }: SubmitStepProps) {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [submissionStatus, setSubmissionStatus] = useState<
     "idle" | "success" | "error"
   >("idle");
   const { toast } = useToast();
+  const { user } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     if (isAnalyzing) {
@@ -41,6 +47,41 @@ export default function SubmitStep({ data, onSubmit }: SubmitStepProps) {
   }, [isAnalyzing]);
 
   const startAnalysis = async () => {
+    // If not logged in: persist form data and redirect to login with resume params
+    if (!user) {
+      try {
+        // Convert any File images to base64 strings for persistence
+        const serializable = { ...data } as AnalysisData;
+        const images = { ...data.images } as AnalysisData["images"];
+        const conversions: Promise<void>[] = [];
+
+        (Object.keys(images) as Array<keyof typeof images>).forEach((key) => {
+          const value = images[key] as unknown;
+          const maybeFile = value as File | string | null | undefined;
+          if (maybeFile && typeof maybeFile !== "string" && typeof (maybeFile as any).arrayBuffer === "function") {
+            conversions.push(
+              fileToBase64(maybeFile as File).then((b64) => {
+                (images as any)[key] = b64;
+              })
+            );
+          }
+        });
+
+        if (conversions.length) {
+          await Promise.all(conversions);
+        }
+        (serializable as any).images = images;
+
+        if (typeof window !== "undefined") {
+          localStorage.setItem("pendingAnalysisData", JSON.stringify(serializable));
+        }
+      } catch (e) {
+        // non-fatal
+      }
+      const nextUrl = encodeURIComponent("/analyze?resume=1&autostart=1");
+      router.push(`/login?next=${nextUrl}`);
+      return;
+    }
     setIsAnalyzing(true);
     setProgress(0);
     console.log("Progress: 0");
@@ -94,6 +135,18 @@ export default function SubmitStep({ data, onSubmit }: SubmitStepProps) {
       setIsAnalyzing(false);
     }
   };
+
+  // Auto-start analysis when requested (used after login redirect)
+  useEffect(() => {
+    if (autoStart && !isAnalyzing) {
+      // Delay slightly to ensure restored state is present
+      const t = setTimeout(() => {
+        startAnalysis();
+      }, 300);
+      return () => clearTimeout(t);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoStart]);
 
   return (
     <div className="space-y-8 text-center">

@@ -106,6 +106,7 @@ export async function submitAnalysisForm(
       method: "POST",
       body: formData,
       // Important: Do NOT set Content-Type header - let browser set multipart boundary
+      credentials: "include", // send auth cookie if present
     });
 
     if (!response.ok) {

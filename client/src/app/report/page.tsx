@@ -2,6 +2,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { API_BASE_URL } from "@/lib/api";
 import jsPDF from "jspdf";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -129,6 +131,7 @@ const SkeletonLoader = () => (
 );
 
 export default function ReportPage() {
+  const searchParams = useSearchParams();
   const [reportContent, setReportContent] =
     useState<BackendFullResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -210,8 +213,9 @@ export default function ReportPage() {
   }
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const storedData = localStorage.getItem("skincareReportData");
+    const analysisId = searchParams.get("analysisId");
+    const loadFromLocal = () => {
+      const storedData = typeof window !== "undefined" ? localStorage.getItem("skincareReportData") : null;
       if (storedData) {
         try {
           const parsedData = JSON.parse(storedData);
@@ -219,24 +223,43 @@ export default function ReportPage() {
           setReportContent(normalizeBackendResponse(backendResult));
         } catch (e) {
           console.error("Failed to parse report data from localStorage:", e);
-          setError(
-            "Failed to load your personalized report. Please try the analysis again."
-          );
+          setError("Failed to load your personalized report. Please try the analysis again.");
         } finally {
           setIsLoading(false);
         }
       } else {
-        setError(
-          "No report data found. Please complete the skin analysis form."
-        );
+        setError("No report data found. Please complete the skin analysis form.");
         setIsLoading(false);
       }
-    }
-  }, []);
+    };
+
+    const loadFromServer = async (id: string) => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const res = await fetch(`${API_BASE_URL}/api/ai/history`, { credentials: "include" });
+        if (!res.ok) throw new Error("Failed to load analysis history");
+        const json = await res.json();
+        const match = (json.items || []).find((x: any) => x.id === id);
+        if (match?.data) {
+          setReportContent(normalizeBackendResponse(match.data));
+        } else {
+          setError("Report not found");
+        }
+      } catch (e: any) {
+        setError(e?.message || "Failed to load report");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (analysisId) loadFromServer(analysisId);
+    else loadFromLocal();
+  }, [searchParams]);
 
   const handleDownloadReport = () => {
     if (!reportContent) return;
-    console.log("Generating PDF Report");
+    // console.log("Generating PDF Report");
 
     const doc = new jsPDF({ unit: "pt", format: "a4" });
     const pageWidth = doc.internal.pageSize.getWidth();
