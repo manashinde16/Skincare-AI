@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
-import { MoreHorizontal, LogOut, Sparkles, TrendingUp, Clock, Star, Plus, Search, BarChart3, Settings, User, Zap } from "lucide-react";
+import { MoreHorizontal, LogOut, Sparkles, TrendingUp, Clock, Star, Plus, Search, BarChart3, Settings, User, Zap, FileText } from "lucide-react";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
 
@@ -210,6 +210,15 @@ function StickySidebar() {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editingValue, setEditingValue] = useState("");
 
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   const filteredItems = historyItems.filter((item) =>
     item.toLowerCase().includes(searchQuery.trim().toLowerCase())
   );
@@ -234,8 +243,8 @@ function StickySidebar() {
       {/* Large spacer */}
       <div className="mt-6 sm:mt-8 lg:mt-10" />
 
-      {/* Middle content (hidden when collapsed) */}
-      {!collapsed && (
+      {/* Middle content */}
+      {!collapsed ? (
         <>
           {/* Navigation Menu */}
           <nav className="space-y-1 sm:space-y-2">
@@ -383,15 +392,55 @@ function StickySidebar() {
             </div>
           </div>
         </>
+      ) : (
+        /* Collapsed: show compact icon nav with hover tooltips */
+        <>
+          <nav className="flex flex-col items-center gap-3 mt-4" aria-label="Collapsed navigation">
+            <div className="relative group">
+              <Link href="/dashboard" className="p-2 rounded-xl hover:bg-blue-50 block" aria-label="Dashboard">
+                <BarChart3 className="h-5 w-5 text-blue-600 group-hover:scale-110 transition-transform" />
+              </Link>
+              <span className="pointer-events-none absolute left-10 top-1/2 -translate-y-1/2 rounded-md bg-gray-900 text-white text-xs px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg whitespace-nowrap">Dashboard</span>
+            </div>
+
+            <div className="relative group">
+              <Link href="/routine" className="p-2 rounded-xl hover:bg-green-50 block" aria-label="Routine">
+                <Zap className="h-5 w-5 text-green-600 group-hover:scale-110 transition-transform" />
+              </Link>
+              <span className="pointer-events-none absolute left-10 top-1/2 -translate-y-1/2 rounded-md bg-gray-900 text-white text-xs px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg whitespace-nowrap">Routine</span>
+            </div>
+
+            <div className="relative group">
+              <Link href="/analyze" className="p-2 rounded-xl hover:bg-purple-50 block" aria-label="New Analysis">
+                <Plus className="h-5 w-5 text-purple-600 group-hover:scale-110 transition-transform" />
+              </Link>
+              <span className="pointer-events-none absolute left-10 top-1/2 -translate-y-1/2 rounded-md bg-gray-900 text-white text-xs px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg whitespace-nowrap">New Analysis</span>
+            </div>
+
+            <div className="relative group">
+              <button
+                onClick={handleViewLatestReport}
+                className="p-2 rounded-xl hover:bg-indigo-50 block disabled:opacity-50"
+                aria-label="View Latest Report"
+                disabled={historyItems.length === 0}
+              >
+                <FileText className={`h-5 w-5 ${historyItems.length === 0 ? 'text-gray-300' : 'text-indigo-600'} group-hover:scale-110 transition-transform`} />
+              </button>
+              <span className="pointer-events-none absolute left-10 top-1/2 -translate-y-1/2 rounded-md bg-gray-900 text-white text-xs px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg whitespace-nowrap">Latest Report</span>
+            </div>
+          </nav>
+        </>
       )}
 
       {/* Bottom: User + actions - Always visible */}
       <div className="mt-auto pt-4 border-t border-gray-200/60">
         <div className="flex items-center justify-between gap-2 sm:gap-3">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-            <Avatar className="h-8 w-8 sm:h-10 sm:w-10 bg-gradient-to-br from-blue-500 to-purple-600 text-white ring-2 ring-white shadow-lg">
-              <AvatarImage src="/placeholder.jpg" alt={user?.name || "User"} />
-              <AvatarFallback className="font-semibold text-xs sm:text-sm">{(user?.name || "U").slice(0, 2).toUpperCase()}</AvatarFallback>
+            <Avatar className="h-8 w-8 sm:h-10 sm:w-10 ring-2 ring-gray-200 hover:ring-blue-300 transition-all duration-300 shadow-lg">
+              <AvatarImage src="/placeholder.svg?height=32&width=32" />
+              <AvatarFallback className="bg-gradient-to-br from-blue-600 to-purple-600 text-white text-xs sm:text-sm font-semibold">
+                {getInitials(user?.name || "User")}
+              </AvatarFallback>
             </Avatar>
             {!collapsed && (
               <div className="truncate">

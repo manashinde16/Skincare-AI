@@ -144,7 +144,7 @@
 ================================ */
 @utility container {
   margin-inline: auto;
-  padding-inline: 2rem;
+  padding-inline: 1rem;
   max-width: 1400px;
 }
 
@@ -252,7 +252,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground transition-colors duration-300;
+    @apply bg-background text-foreground transition-colors duration-300 overflow-x-hidden;
   }
 
   /* Global dark background gradient */

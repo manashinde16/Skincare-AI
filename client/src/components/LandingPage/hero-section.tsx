@@ -18,16 +18,16 @@ export default function HeroSection() {
         style={{
           background:
             "radial-gradient(circle at center, rgba(236, 72, 153, 0.3), rgba(239, 68, 68, 0.2))",
+          animationDelay: '2s'
         }}
-        style={{ animationDelay: '2s' }}
       />
       <div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full filter blur-3xl opacity-50 animate-pulse"
         style={{
           background:
             "radial-gradient(circle at center, rgba(16, 185, 129, 0.3), rgba(59, 130, 246, 0.2))",
+          animationDelay: '4s'
         }}
-        style={{ animationDelay: '4s' }}
       />
 
       {/* Content */}
@@ -58,7 +58,7 @@ export default function HeroSection() {
           </p>
 
           {/* Trust indicators */}
-          <div className="mt-8 flex items-center justify-center gap-6 text-sm text-gray-500">
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm text-gray-500">
             <div className="flex items-center gap-2">
               <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
               <span>4.9/5 Rating</span>

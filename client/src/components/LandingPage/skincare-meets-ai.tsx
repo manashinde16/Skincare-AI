@@ -59,7 +59,7 @@ export default function SkincareMeetsAI() {
           {aiFeatures.map((feature, index) => (
             <div
               key={index}
-              className="group bg-white rounded-2xl p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-2 overflow-hidden relative"
+              className="group bg-white rounded-2xl p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-2 overflow-hidden relative animate-[fade-in-up_0.7s_ease-out_both]"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               {/* Background gradient overlay */}

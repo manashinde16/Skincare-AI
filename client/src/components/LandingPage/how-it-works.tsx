@@ -81,7 +81,7 @@ export default function HowItWorks() {
             return (
               <div
                 key={step.id}
-                className="group relative"
+                className="group relative animate-[fade-in-up_0.7s_ease-out_both]"
                 style={{ animationDelay: `${0.2 + index * 0.1}s` }}
               >
                 <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-2 border border-gray-100">

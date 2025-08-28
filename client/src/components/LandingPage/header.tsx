@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Sparkles, LogOut, User, Moon, Sun } from "lucide-react";
+import { Sparkles, LogOut, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   DropdownMenu,
@@ -12,14 +12,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useTheme } from "next-themes";
 
 export default function Header() {
   const { user, logout, loading } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
-  const { theme, setTheme, systemTheme } = useTheme();
-  const currentTheme = theme === "system" ? systemTheme : theme;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -138,8 +135,8 @@ export default function Header() {
       <div
         className={`flex h-full items-center justify-between ${
           scrollProgress > 0.1
-            ? "px-4 sm:px-6"
-            : "container mx-auto px-4 sm:px-6"
+            ? "px-3 sm:px-4 md:px-6"
+            : "container mx-auto px-3 sm:px-4 md:px-6"
         }`}
       >
         <Link href="/" className="flex items-center space-x-3 group">
@@ -161,20 +158,7 @@ export default function Header() {
           </span>
         </Link>
 
-        <div className="flex items-center space-x-3 sm:space-x-4">
-          <Button
-            variant="ghost"
-            className="h-11 w-11 rounded-full p-0 hover:bg-gray-100 dark:hover:bg-neutral-800 hover:scale-110 transition-all duration-500 ease-out shadow-lg hover:shadow-xl"
-            onClick={() => setTheme(currentTheme === "dark" ? "light" : "dark")}
-            aria-label="Toggle theme"
-            title="Toggle theme"
-          >
-            {currentTheme === "dark" ? (
-              <Sun className="h-5 w-5 text-yellow-400" />
-            ) : (
-              <Moon className="h-5 w-5 text-gray-700" />
-            )}
-          </Button>
+        <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4">
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -218,13 +202,13 @@ export default function Header() {
             <>
               <Link href="/login">
                 <Button
-                  variant="ghost"
+                  variant="outline"
                   className={`
-                        text-gray-900 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-neutral-800 rounded-full px-4 sm:px-6
-                        transition-all duration-500 ease-out hover:scale-105 font-medium text-sm sm:text-base shadow-lg hover:shadow-xl
+                        border-gray-300 text-gray-700 bg-white hover:border-blue-500 hover:bg-blue-50 hover:text-blue-700 rounded-full px-4 sm:px-6
+                        transition-all duration-500 ease-out hover:scale-105 font-medium text-sm sm:text-base shadow-md hover:shadow-xl
                       `}
                 >
-                  Login
+                  Sign in
                 </Button>
               </Link>
               <Link href="/signup">
