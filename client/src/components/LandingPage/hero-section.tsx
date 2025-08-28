@@ -1,64 +1,112 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Sparkles, Zap, Star } from "lucide-react";
 import Link from "next/link";
 
 export default function HeroSection() {
   return (
-    <section className="relative overflow-hidden py-20 lg:py-32 min-h-[calc(100vh-64px)] flex items-center justify-center pt-[80px]">
-      {/* Gradient Blobs - positioned to cover full width/height and bleed off edges */}
+    <section className="relative overflow-hidden py-16 sm:py-20 lg:py-32 min-h-[calc(100vh-80px)] flex items-center justify-center">
+      {/* Enhanced Gradient Blobs with premium colors */}
       <div
-        className="absolute -top-1/4 -left-1/4 w-[800px] h-[800px] rounded-full filter blur-3xl opacity-70 animate-float-blob-1 animate-pulse-opacity-slow"
+        className="absolute -top-1/4 -left-1/4 w-[900px] h-[900px] rounded-full filter blur-3xl opacity-60 animate-pulse"
         style={{
           background:
-            "radial-gradient(circle at center, rgba(239, 233, 255, 0.8), rgba(252, 231, 246, 0.6))",
-        }} // Lavender-100 to Pink-100
-      ></div>
+            "radial-gradient(circle at center, rgba(59, 130, 246, 0.3), rgba(147, 51, 234, 0.2))",
+        }}
+      />
       <div
-        className="absolute -bottom-1/4 -right-1/4 w-[700px] h-[700px] rounded-full filter blur-3xl opacity-70 animate-float-blob-2 animate-pulse-opacity-slow"
+        className="absolute -bottom-1/4 -right-1/4 w-[800px] h-[800px] rounded-full filter blur-3xl opacity-60 animate-pulse"
         style={{
           background:
-            "radial-gradient(circle at center, rgba(255, 245, 235, 0.8), rgba(255, 234, 214, 0.6))",
-        }} // Peach-100 to Peach-200
-      ></div>
+            "radial-gradient(circle at center, rgba(236, 72, 153, 0.3), rgba(239, 68, 68, 0.2))",
+          animationDelay: '2s'
+        }}
+      />
       <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full filter blur-3xl opacity-60 animate-float-blob-3 animate-pulse-opacity-slow"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full filter blur-3xl opacity-50 animate-pulse"
         style={{
           background:
-            "radial-gradient(circle at center, rgba(224, 242, 255, 0.8), rgba(186, 230, 253, 0.6))",
-        }} // Sky-100 to Sky-200
-      ></div>
-      <div
-        className="absolute top-1/4 right-1/4 w-[500px] h-[500px] rounded-full filter blur-3xl opacity-60 animate-float-blob-4 animate-pulse-opacity-slow"
-        style={{
-          background:
-            "radial-gradient(circle at center, rgba(255, 249, 215, 0.8), rgba(253, 230, 138, 0.6))",
-        }} // Amber-100 to Amber-200
-      ></div>
+            "radial-gradient(circle at center, rgba(16, 185, 129, 0.3), rgba(59, 130, 246, 0.2))",
+          animationDelay: '4s'
+        }}
+      />
 
       {/* Content */}
-      <div className="container mx-auto px-4 text-center relative z-10 animate-fade-in-up">
-        <div className="mx-auto max-w-4xl">
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl lg:text-7xl mb-6">
-            <span className="bg-gradient-to-r from-lavender-500 via-pink-500 to-peach-500 bg-clip-text text-transparent">
-              Your Skin, Supercharged by AI
+      <div className="container mx-auto px-4 text-center relative z-10">
+        <div className="mx-auto max-w-5xl">
+          {/* Premium Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full text-sm font-medium mb-6 shadow-lg">
+            <Sparkles className="h-4 w-4" />
+            AI-Powered Skincare Analysis
+          </div>
+
+          {/* Main Heading with enhanced gradients */}
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight mb-6">
+            <span className="bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent">
+              Your Skin, Supercharged by
+            </span>
+            <br />
+            <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+              AI Technology
             </span>
           </h1>
 
-          <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-gray-700 sm:text-xl">
-            Get your dermatologist-grade skincare routine in under 40 seconds —
-            completely free, powered by AI, and trusted by over 1 million users.
+          {/* Enhanced subtitle */}
+          <p className="mx-auto mt-6 max-w-3xl text-lg sm:text-xl lg:text-2xl leading-relaxed text-gray-600 sm:text-gray-700">
+            Get your <span className="font-semibold text-gray-800">dermatologist-grade skincare routine</span> in under 40 seconds —
+            completely free, powered by AI, and trusted by over{" "}
+            <span className="font-semibold text-blue-600">1 million users</span> worldwide.
           </p>
 
-          <div className="mt-10 flex items-center justify-center gap-x-6">
+          {/* Trust indicators */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm text-gray-500">
+            <div className="flex items-center gap-2">
+              <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+              <span>4.9/5 Rating</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Zap className="h-4 w-4 text-green-500" />
+              <span>40 Second Analysis</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-purple-500" />
+              <span>AI-Powered</span>
+            </div>
+          </div>
+
+          {/* Enhanced CTA Button */}
+          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/analyze">
               <Button
                 size="lg"
-                className="group bg-black text-white rounded-full px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 relative overflow-hidden hover:scale-[1.02] animate-hero-button-glow"
+                className="group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full px-8 py-6 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 relative overflow-hidden hover:scale-105 animate-pulse"
               >
-                Start Your Free Skin Analysis
-                <ArrowRight className="ml-2 h-5 w-5" />
+                <span className="relative z-10 flex items-center gap-2">
+                  Start Your Free Skin Analysis
+                  <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </Button>
             </Link>
+            
+            <Link href="/signup">
+              <Button
+                variant="outline"
+                size="lg"
+                className="border-2 border-gray-300 hover:border-blue-500 hover:bg-blue-50 text-gray-700 hover:text-blue-700 rounded-full px-8 py-6 text-lg font-semibold transition-all duration-300 hover:scale-105"
+              >
+                Learn More
+              </Button>
+            </Link>
+          </div>
+
+          {/* Social proof */}
+          <div className="mt-12 text-center">
+            <p className="text-sm text-gray-500 mb-3">Trusted by leading dermatologists worldwide</p>
+            <div className="flex items-center justify-center gap-8 opacity-60">
+              <div className="w-16 h-8 bg-gray-200 rounded animate-pulse" />
+              <div className="w-20 h-8 bg-gray-200 rounded animate-pulse" />
+              <div className="w-16 h-8 bg-gray-200 rounded animate-pulse" />
+            </div>
           </div>
         </div>
       </div>

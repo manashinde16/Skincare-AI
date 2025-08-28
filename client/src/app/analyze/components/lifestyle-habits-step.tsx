@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Droplet, Moon, Brain, Activity, Apple, Coffee } from "lucide-react";
 import type { AnalysisData } from "../page";
 
 interface LifestyleHabitsStepProps {
@@ -10,34 +11,34 @@ interface LifestyleHabitsStepProps {
 }
 
 const waterIntakeOptions = [
-  { value: "less-1l", label: "Less than 1L" },
-  { value: "1-2l", label: "1-2L" },
-  { value: "2-3l", label: "2-3L" },
-  { value: "3l-plus", label: "3L+" },
+  { value: "less-1l", label: "Less than 1L", icon: "💧", color: "from-red-500 to-red-600" },
+  { value: "1-2l", label: "1-2L", icon: "💧", color: "from-orange-500 to-orange-600" },
+  { value: "2-3l", label: "2-3L", icon: "💧", color: "from-green-500 to-green-600" },
+  { value: "3l-plus", label: "3L+", icon: "💧", color: "from-blue-500 to-blue-600" },
 ];
 
 const sleepHoursOptions = [
-  { value: "less-5", label: "Less than 5" },
-  { value: "6-7", label: "6-7" },
-  { value: "8-plus", label: "8+" },
+  { value: "less-5", label: "Less than 5", icon: "😴", color: "from-red-500 to-red-600" },
+  { value: "6-7", label: "6-7", icon: "😴", color: "from-yellow-500 to-yellow-600" },
+  { value: "8-plus", label: "8+", icon: "😴", color: "from-green-500 to-green-600" },
 ];
 
 const stressLevelOptions = [
-  { value: "low", label: "Low" },
-  { value: "moderate", label: "Moderate" },
-  { value: "high", label: "High" },
+  { value: "low", label: "Low", icon: "😌", color: "from-green-500 to-green-600" },
+  { value: "moderate", label: "Moderate", icon: "😐", color: "from-yellow-500 to-yellow-600" },
+  { value: "high", label: "High", icon: "😰", color: "from-red-500 to-red-600" },
 ];
 
 const exerciseFrequencyOptions = [
-  { value: "never", label: "Never" },
-  { value: "1-2-times-week", label: "1-2 times/week" },
-  { value: "3-plus-times-week", label: "3+ times/week" },
+  { value: "never", label: "Never", icon: "🛋️", color: "from-red-500 to-red-600" },
+  { value: "1-2-times-week", label: "1-2 times/week", icon: "🚶", color: "from-orange-500 to-orange-600" },
+  { value: "3-plus-times-week", label: "3+ times/week", icon: "🏃", color: "from-green-500 to-green-600" },
 ];
 
 const dietDescriptionOptions = [
-  { value: "junk-food", label: "Junk food" },
-  { value: "balanced", label: "Balanced" },
-  { value: "healthy", label: "Healthy" },
+  { value: "junk-food", label: "Junk food", icon: "🍔", color: "from-red-500 to-red-600" },
+  { value: "balanced", label: "Balanced", icon: "🥗", color: "from-yellow-500 to-yellow-600" },
+  { value: "healthy", label: "Healthy", icon: "🥑", color: "from-green-500 to-green-600" },
 ];
 
 export default function LifestyleHabitsStep({
@@ -47,23 +48,32 @@ export default function LifestyleHabitsStep({
   const renderOptionGroup = <T extends string>(
     title: string,
     key: keyof AnalysisData,
-    options: { value: T; label: string }[],
-    currentValue: T
+    options: { value: T; label: string; icon: string; color: string }[],
+    currentValue: T,
+    icon: React.ReactNode
   ) => (
-    <div>
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">{title}</h3>
+    <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl text-white">
+          {icon}
+        </div>
+        <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+      </div>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         {options.map((option) => (
           <Button
             key={option.value}
             onClick={() => updateData({ [key]: option.value })}
-            className={`p-4 h-auto text-left justify-start transition-all duration-200 ${
+            className={`p-4 h-auto text-center justify-center transition-all duration-300 rounded-xl border-2 ${
               currentValue === option.value
-                ? "bg-gradient-to-r from-purple-accent to-magenta-accent text-white shadow-md"
-                : "border-purple-200 text-gray-700 hover:bg-purple-50 bg-white"
+                ? `bg-gradient-to-r ${option.color} text-white shadow-lg scale-105`
+                : "border-gray-200 text-gray-700 hover:border-blue-300 hover:bg-blue-50 bg-white hover:scale-105"
             }`}
           >
-            {option.label}
+            <div className="flex flex-col items-center gap-2">
+              <span className="text-xl">{option.icon}</span>
+              <span className="font-medium text-sm">{option.label}</span>
+            </div>
           </Button>
         ))}
       </div>
@@ -72,65 +82,107 @@ export default function LifestyleHabitsStep({
 
   return (
     <div className="space-y-8">
+      {/* Header */}
+      <div className="text-center mb-8">
+        <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-full text-sm font-medium mb-4">
+          <Activity className="h-4 w-4" />
+          Lifestyle & Habits
+        </div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          Your Daily Lifestyle
+        </h2>
+        <p className="text-gray-600">
+          Understanding your lifestyle helps us create a skincare routine that fits your daily habits.
+        </p>
+      </div>
+
+      {/* Option Groups */}
       {renderOptionGroup(
         "How much water do you drink daily?",
         "waterIntake",
         waterIntakeOptions,
-        data.waterIntake
+        data.waterIntake,
+        <Droplet className="h-6 w-6" />
       )}
+      
       {renderOptionGroup(
         "How many hours do you sleep daily?",
         "sleepHours",
         sleepHoursOptions,
-        data.sleepHours
+        data.sleepHours,
+        <Moon className="h-6 w-6" />
       )}
+      
       {renderOptionGroup(
         "Rate your stress level",
         "stressLevel",
         stressLevelOptions,
-        data.stressLevel
+        data.stressLevel,
+        <Brain className="h-6 w-6" />
       )}
+      
       {renderOptionGroup(
         "How often do you exercise?",
         "exerciseFrequency",
         exerciseFrequencyOptions,
-        data.exerciseFrequency
+        data.exerciseFrequency,
+        <Activity className="h-6 w-6" />
       )}
+      
       {renderOptionGroup(
         "How would you describe your current diet?",
         "dietDescription",
         dietDescriptionOptions,
-        data.dietDescription
+        data.dietDescription,
+        <Apple className="h-6 w-6" />
       )}
 
       {/* Textarea for consumption */}
-      <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          How often do you consume sugar, caffeine, or alcohol?
-        </h3>
+      <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl text-white">
+            <Coffee className="h-6 w-6" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900">
+            How often do you consume sugar, caffeine, or alcohol?
+          </h3>
+        </div>
         <Textarea
           placeholder="e.g., 'Sugar daily, caffeine 3 times a week, alcohol occasionally'"
           value={data.consumptionSugarCaffeineAlcohol}
           onChange={(e) =>
             updateData({ consumptionSugarCaffeineAlcohol: e.target.value })
           }
-          className="border-purple-200 focus:border-purple-400 focus:ring-purple-400 min-h-[80px]"
+          className="border-gray-200 focus:border-orange-400 focus:ring-orange-400 min-h-[80px] rounded-xl resize-none"
         />
       </div>
 
       {/* Textarea for medications/supplements */}
-      <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Any current medications or supplements? (Optional)
-        </h3>
+      <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl text-white">
+            <Brain className="h-6 w-6" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900">
+            Any current medications or supplements? (Optional)
+          </h3>
+        </div>
         <Textarea
           placeholder="Please list any medications or supplements you are currently taking..."
           value={data.currentMedicationsSupplements}
           onChange={(e) =>
             updateData({ currentMedicationsSupplements: e.target.value })
           }
-          className="border-purple-200 focus:border-purple-400 focus:ring-purple-400 min-h-[80px]"
+          className="border-gray-200 focus:border-blue-400 focus:ring-blue-400 min-h-[80px] rounded-xl resize-none"
         />
+      </div>
+
+      {/* Progress Indicator */}
+      <div className="text-center p-4 bg-white rounded-xl border border-gray-200">
+        <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
+          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+          <span>Lifestyle factors significantly impact your skin health and routine effectiveness</span>
+        </div>
       </div>
     </div>
   );
