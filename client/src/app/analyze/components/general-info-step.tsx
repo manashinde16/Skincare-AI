@@ -58,7 +58,6 @@ export default function GeneralInfoStep({
               }`}
             >
               <div className="flex items-center gap-3">
-                <span className="text-2xl">{option.icon}</span>
                 <span className="font-semibold text-lg">{option.label}</span>
               </div>
             </Button>
@@ -88,7 +87,6 @@ export default function GeneralInfoStep({
               }`}
             >
               <div className="flex flex-col items-center gap-2">
-                <span className="text-xl">{option.icon}</span>
                 <span className="font-medium text-sm">{option.label}</span>
               </div>
             </Button>
@@ -118,7 +116,6 @@ export default function GeneralInfoStep({
               }`}
             >
               <div className="flex flex-col items-center gap-2">
-                <span className="text-xl">{option.icon}</span>
                 <span className="font-medium text-sm">{option.label}</span>
               </div>
             </Button>
@@ -126,13 +123,7 @@ export default function GeneralInfoStep({
         </div>
       </div>
 
-      {/* Progress Indicator */}
-      <div className="text-center p-4 bg-white rounded-xl border border-gray-200">
-        <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
-          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-          <span>Basic information helps us personalize your skincare routine</span>
-        </div>
-      </div>
+      
     </div>
   );
 }

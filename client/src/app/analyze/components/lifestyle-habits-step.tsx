@@ -11,34 +11,34 @@ interface LifestyleHabitsStepProps {
 }
 
 const waterIntakeOptions = [
-  { value: "less-1l", label: "Less than 1L", icon: "💧", color: "from-red-500 to-red-600" },
-  { value: "1-2l", label: "1-2L", icon: "💧", color: "from-orange-500 to-orange-600" },
-  { value: "2-3l", label: "2-3L", icon: "💧", color: "from-green-500 to-green-600" },
-  { value: "3l-plus", label: "3L+", icon: "💧", color: "from-blue-500 to-blue-600" },
+  { value: "less-1l", label: "Less than 1L", color: "from-red-500 to-red-600" },
+  { value: "1-2l", label: "1-2L", color: "from-orange-500 to-orange-600" },
+  { value: "2-3l", label: "2-3L", color: "from-green-500 to-green-600" },
+  { value: "3l-plus", label: "3L+", color: "from-blue-500 to-blue-600" },
 ];
 
 const sleepHoursOptions = [
-  { value: "less-5", label: "Less than 5", icon: "😴", color: "from-red-500 to-red-600" },
-  { value: "6-7", label: "6-7", icon: "😴", color: "from-yellow-500 to-yellow-600" },
-  { value: "8-plus", label: "8+", icon: "😴", color: "from-green-500 to-green-600" },
+  { value: "less-5", label: "Less than 5", color: "from-red-500 to-red-600" },
+  { value: "6-7", label: "6-7", color: "from-yellow-500 to-yellow-600" },
+  { value: "8-plus", label: "8+", color: "from-green-500 to-green-600" },
 ];
 
 const stressLevelOptions = [
-  { value: "low", label: "Low", icon: "😌", color: "from-green-500 to-green-600" },
-  { value: "moderate", label: "Moderate", icon: "😐", color: "from-yellow-500 to-yellow-600" },
-  { value: "high", label: "High", icon: "😰", color: "from-red-500 to-red-600" },
+  { value: "low", label: "Low", color: "from-green-500 to-green-600" },
+  { value: "moderate", label: "Moderate", color: "from-yellow-500 to-yellow-600" },
+  { value: "high", label: "High", color: "from-red-500 to-red-600" },
 ];
 
 const exerciseFrequencyOptions = [
-  { value: "never", label: "Never", icon: "🛋️", color: "from-red-500 to-red-600" },
-  { value: "1-2-times-week", label: "1-2 times/week", icon: "🚶", color: "from-orange-500 to-orange-600" },
-  { value: "3-plus-times-week", label: "3+ times/week", icon: "🏃", color: "from-green-500 to-green-600" },
+  { value: "never", label: "Never", color: "from-red-500 to-red-600" },
+  { value: "1-2-times-week", label: "1-2 times/week", color: "from-orange-500 to-orange-600" },
+  { value: "3-plus-times-week", label: "3+ times/week", color: "from-green-500 to-green-600" },
 ];
 
 const dietDescriptionOptions = [
-  { value: "junk-food", label: "Junk food", icon: "🍔", color: "from-red-500 to-red-600" },
-  { value: "balanced", label: "Balanced", icon: "🥗", color: "from-yellow-500 to-yellow-600" },
-  { value: "healthy", label: "Healthy", icon: "🥑", color: "from-green-500 to-green-600" },
+  { value: "junk-food", label: "Junk food", color: "from-red-500 to-red-600" },
+  { value: "balanced", label: "Balanced", color: "from-yellow-500 to-yellow-600" },
+  { value: "healthy", label: "Healthy", color: "from-green-500 to-green-600" },
 ];
 
 export default function LifestyleHabitsStep({
@@ -48,7 +48,7 @@ export default function LifestyleHabitsStep({
   const renderOptionGroup = <T extends string>(
     title: string,
     key: keyof AnalysisData,
-    options: { value: T; label: string; icon: string; color: string }[],
+    options: { value: T; label: string; color: string }[],
     currentValue: T,
     icon: React.ReactNode
   ) => (
@@ -71,7 +71,6 @@ export default function LifestyleHabitsStep({
             }`}
           >
             <div className="flex flex-col items-center gap-2">
-              <span className="text-xl">{option.icon}</span>
               <span className="font-medium text-sm">{option.label}</span>
             </div>
           </Button>

@@ -23,6 +23,10 @@ export default function CameraCapture({
 }: CameraCaptureProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const [cameraError, setCameraError] = useState<string | null>(null);
 
   useEffect(() => {
     // Handle different types of initial images
@@ -60,11 +64,106 @@ export default function CameraCapture({
     if (input) {
       if (captureMode) {
         input.setAttribute("capture", captureMode);
+        // Hint some browsers to prefer camera
+        input.setAttribute("accept", "image/*;capture=camera");
       } else {
         input.removeAttribute("capture");
+        input.setAttribute("accept", "image/*");
       }
       input.click();
     }
+  };
+
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+    }
+    setCameraOpen(false);
+  };
+
+  const openCamera = async (facing: "user" | "environment") => {
+    try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        // Fallback to file input if camera API is not available
+        triggerFileInput(facing);
+        return;
+      }
+      setCameraError(null);
+      const constraints: MediaStreamConstraints = {
+        video: { facingMode: facing, width: { ideal: 1280 }, height: { ideal: 720 } },
+        audio: false,
+      };
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      streamRef.current = stream;
+      setCameraOpen(true);
+      // Attach to video
+      requestAnimationFrame(async () => {
+        if (videoRef.current) {
+          const video = videoRef.current;
+          video.srcObject = stream;
+          try {
+            await video.play();
+          } catch {}
+          // Wait until metadata is loaded to ensure dimensions are available
+          if (video.readyState < 2) {
+            await new Promise<void>((resolve) => {
+              const onLoaded = () => {
+                video.removeEventListener("loadeddata", onLoaded);
+                resolve();
+              };
+              video.addEventListener("loadeddata", onLoaded);
+            });
+          }
+        }
+      });
+    } catch (e: any) {
+      setCameraError(e?.message || "Unable to access camera");
+      // Fallback to file input picker
+      triggerFileInput(facing);
+    }
+  };
+
+  const captureFromVideo = async () => {
+    if (!videoRef.current) return;
+    const video = videoRef.current;
+    // Ensure we have frame data
+    if (video.readyState < 2) {
+      await new Promise<void>((resolve) => {
+        const onLoaded = () => {
+          video.removeEventListener("loadeddata", onLoaded);
+          resolve();
+        };
+        video.addEventListener("loadeddata", onLoaded);
+      });
+    }
+    const canvas = document.createElement("canvas");
+    let width = video.videoWidth;
+    let height = video.videoHeight;
+    if (!width || !height) {
+      const track = streamRef.current?.getVideoTracks()[0];
+      const settings = track?.getSettings();
+      width = settings?.width || 720;
+      height = settings?.height || 720;
+    }
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob((blob) => {
+      if (blob) {
+        const file = new File([blob], "capture.jpg", { type: "image/jpeg" });
+        onCapture(file);
+      }
+      stopCamera();
+    }, "image/jpeg", 0.95);
+  };
+
+  const clearPhoto = () => {
+    setImagePreviewUrl(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    onCapture(null);
   };
 
   return (
@@ -88,14 +187,32 @@ export default function CameraCapture({
               <div className="absolute top-2 right-2 bg-green-500 rounded-full p-1">
                 <CheckCircle className="w-4 h-4 text-white" />
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => triggerFileInput()}
-                className="mt-3 w-full border-purple-200 text-purple-600 hover:bg-purple-50 opacity-100"
-              >
-                Change Photo
-              </Button>
+              <div className="mt-3 grid grid-cols-3 gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => openCamera("environment")}
+                  className="w-full border-purple-200 text-purple-600 hover:bg-purple-50 opacity-100"
+                >
+                  Retake
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => triggerFileInput()}
+                  className="w-full border-purple-200 text-purple-600 hover:bg-purple-50 opacity-100"
+                >
+                  Change
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={clearPhoto}
+                  className="w-full"
+                >
+                  Delete
+                </Button>
+              </div>
             </div>
           ) : (
             <div className="text-center">
@@ -112,7 +229,7 @@ export default function CameraCapture({
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => triggerFileInput("environment")}
+                  onClick={() => openCamera("environment")}
                   className="w-full border-purple-200 text-purple-600 hover:bg-purple-50 bg-transparent opacity-100"
                 >
                   <Camera className="w-4 h-4 mr-2" />
@@ -131,6 +248,23 @@ export default function CameraCapture({
           />
         </CardContent>
       </Card>
+
+      {cameraOpen && (
+        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-md p-4 shadow-2xl">
+            <div className="aspect-video bg-black rounded-lg overflow-hidden">
+              <video ref={videoRef} className="w-full h-full object-contain" playsInline muted />
+            </div>
+            {cameraError && (
+              <p className="text-red-600 text-sm mt-2">{cameraError}</p>
+            )}
+            <div className="flex gap-3 mt-4">
+              <Button onClick={captureFromVideo} className="flex-1 bg-gradient-to-r from-purple-accent to-magenta-accent text-white">Capture</Button>
+              <Button variant="outline" onClick={stopCamera} className="flex-1">Cancel</Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

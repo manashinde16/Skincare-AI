@@ -19,15 +19,15 @@ export default function GenderSpecificQuestionsStep({
     currentValue: boolean | null,
     icon: string,
     color: string,
-    options: { value: boolean; label: string; icon: string }[] = [
-      { value: true, label: "Yes", icon: "✅" },
-      { value: false, label: "No", icon: "❌" },
+    options: { value: boolean; label: string }[] = [
+      { value: true, label: "Yes" },
+      { value: false, label: "No" },
     ]
   ) => (
     <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300">
       <div className="flex items-center gap-3 mb-6">
         <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl text-white">
-          <span className="text-xl">{icon}</span>
+          <span className="text-lg">{icon}</span>
         </div>
         <h3 className="text-lg font-semibold text-gray-900">{question}</h3>
       </div>
@@ -44,7 +44,6 @@ export default function GenderSpecificQuestionsStep({
             }`}
           >
             <div className="flex items-center gap-2">
-              <span className="text-lg">{option.icon}</span>
               <span className="font-medium">{option.label}</span>
             </div>
           </Button>
