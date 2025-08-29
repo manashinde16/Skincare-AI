@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ChevronLeft, ChevronRight, Camera, Lightbulb, Sparkles } from "lucide-react";
+import { ChevronLeft, ChevronRight, Camera } from "lucide-react";
 import type { AnalysisData } from "../page";
 import CameraCapture from "../../../components/LandingPage/camera-capture";
 
@@ -181,15 +181,6 @@ export default function UploadSelfiesStep({
         {photoTypes.map((photo) => (
           <div key={photo.key} className="relative">
             <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-              <div className="flex items-center gap-3 mb-4">
-                <div className={`flex items-center justify-center w-12 h-12 bg-gradient-to-br ${photo.color} rounded-xl text-white`}>
-                  <span className="text-xl">{photo.icon}</span>
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900">{photo.label}</h3>
-                  <p className="text-sm text-gray-600">{photo.description}</p>
-                </div>
-              </div>
               
               <CameraCapture
                 label={photo.label}
@@ -204,41 +195,6 @@ export default function UploadSelfiesStep({
         ))}
       </div>
 
-      {/* Tips Section */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl text-white">
-            <Lightbulb className="h-6 w-6" />
-          </div>
-          <h3 className="text-lg font-semibold text-gray-900">Pro Tips for Best Results</h3>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-            <span>Use natural daylight when possible</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-            <span>Keep your face centered in the frame</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-            <span>Avoid shadows on your face</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-            <span>Take photos from the same distance</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Progress Indicator */}
-      <div className="text-center p-4 bg-white rounded-xl border border-gray-200">
-        <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
-          <div className="w-2 h-2 bg-pink-500 rounded-full"></div>
-          <span>Clear photos ensure accurate AI analysis and personalized recommendations</span>
-        </div>
-      </div>
     </div>
   );
 }

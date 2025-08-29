@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, ArrowRight, Sparkles, Brain, Zap, Clock, Shield } from "lucide-react";
+import { ArrowLeft, ArrowRight, Sparkles, Brain, Zap } from "lucide-react";
 import Link from "next/link";
 import GeneralInfoStep from "./components/general-info-step";
 import UploadSelfiesStep from "./components/upload-selfies-step";
@@ -260,7 +259,7 @@ export default function AnalyzePage() {
           </div>
         </div>
 
-        {/* Enhanced Progress Section */}
+        {/* Progress Section (steps only) */}
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-5xl mx-auto">
             {/* Progress Steps */}
@@ -275,7 +274,7 @@ export default function AnalyzePage() {
                           : "border-gray-300 text-gray-400 bg-white"
                       }`}
                     >
-                      <span className="text-2xl">{step.icon}</span>
+                      <span className="text-lg font-bold">{step.id}</span>
                     </div>
                     <div className="text-center mt-2">
                       <div className={`text-xs font-medium ${
@@ -296,23 +295,6 @@ export default function AnalyzePage() {
                   )}
                 </div>
               ))}
-            </div>
-            
-            {/* Enhanced Progress Bar */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 mb-8">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-blue-600" />
-                  <span className="text-sm font-medium text-gray-700">Progress</span>
-                </div>
-                <span className="text-sm font-semibold text-blue-600">
-                  {Math.round((currentStep / steps.length) * 100)}% Complete
-                </span>
-              </div>
-              <Progress
-                value={(currentStep / steps.length) * 100}
-                className="h-3 bg-gray-100"
-              />
             </div>
           </div>
         </div>
@@ -380,36 +362,7 @@ export default function AnalyzePage() {
           </div>
         </div>
 
-        {/* Bottom Info Section */}
-        <div className="container mx-auto px-4 pb-8">
-          <div className="max-w-4xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center p-6 bg-white rounded-2xl shadow-lg border border-gray-100">
-                <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl text-white">
-                  <Shield className="h-8 w-8" />
-                </div>
-                <div className="text-lg font-semibold text-gray-900 mb-2">Privacy Protected</div>
-                <div className="text-sm text-gray-600">Your data is secure and never stored</div>
-              </div>
-              
-              <div className="text-center p-6 bg-white rounded-2xl shadow-lg border border-gray-100">
-                <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl text-white">
-                  <Zap className="h-8 w-8" />
-                </div>
-                <div className="text-lg font-semibold text-gray-900 mb-2">AI-Powered</div>
-                <div className="text-sm text-gray-600">Advanced algorithms for accurate results</div>
-              </div>
-              
-              <div className="text-center p-6 bg-white rounded-2xl shadow-lg border border-gray-100">
-                <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl text-white">
-                  <Clock className="h-8 w-8" />
-                </div>
-                <div className="text-lg font-semibold text-gray-900 mb-2">Quick Results</div>
-                <div className="text-sm text-gray-600">Get your routine in under 40 seconds</div>
-              </div>
-            </div>
-          </div>
-        </div>
+        
       </div>
     </div>
   );

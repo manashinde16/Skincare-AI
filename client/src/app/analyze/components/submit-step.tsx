@@ -23,13 +23,6 @@ interface SubmitStepProps {
 export default function SubmitStep({ data, onSubmit, autoStart = false }: SubmitStepProps) {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [submissionStatus, setSubmissionStatus] = useState<
-    "idle" | "success" | "error"
-  >("idle");
-  const { toast } = useToast();
-  const { user } = useAuth();
-  const router = useRouter();
-
   useEffect(() => {
     if (isAnalyzing) {
       const interval = setInterval(() => {
@@ -37,14 +30,20 @@ export default function SubmitStep({ data, onSubmit, autoStart = false }: Submit
           const targetCap = 99;
           if (prev >= targetCap) return prev;
           const delta = prev < 70 ? 3 : prev < 85 ? 2 : 1;
-          const next = Math.min(prev + delta, targetCap);
-          if (next !== prev) console.log("Progress:", next);
-          return next;
+          return Math.min(prev + delta, targetCap);
         });
       }, 400);
       return () => clearInterval(interval);
     }
   }, [isAnalyzing]);
+  const [submissionStatus, setSubmissionStatus] = useState<
+    "idle" | "success" | "error"
+  >("idle");
+  const { toast } = useToast();
+  const { user } = useAuth();
+  const router = useRouter();
+
+  
 
   const startAnalysis = async () => {
     // If not logged in: persist form data and redirect to login with resume params
@@ -84,7 +83,6 @@ export default function SubmitStep({ data, onSubmit, autoStart = false }: Submit
     }
     setIsAnalyzing(true);
     setProgress(0);
-    console.log("Progress: 0");
     setSubmissionStatus("idle");
 
     try {
@@ -99,7 +97,6 @@ export default function SubmitStep({ data, onSubmit, autoStart = false }: Submit
 
       if (response.ok) {
         setProgress(100);
-        console.log("Progress: 100");
         setSubmissionStatus("success");
         await onSubmit(response);
       } else {
@@ -203,15 +200,12 @@ export default function SubmitStep({ data, onSubmit, autoStart = false }: Submit
                   <p className="text-gray-500 mb-6">
                     Our AI is processing your photos and information. This will only take a moment.
                   </p>
-                  
-                  {/* Enhanced Progress Bar */}
                   <div className="w-full bg-gray-100 rounded-full h-3 mb-4 overflow-hidden">
                     <div
                       className="bg-gradient-to-r from-green-500 to-emerald-500 h-3 rounded-full transition-all duration-500 ease-out shadow-lg"
                       style={{ width: `${progress}%` }}
-                    ></div>
+                    />
                   </div>
-                  
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-500">Processing...</span>
                     <span className="font-semibold text-green-600">{progress}% Complete</span>

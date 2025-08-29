@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Mic, MicOff, AlertTriangle, Package, Target, MessageSquare } from "lucide-react";
+import { Mic, MicOff, AlertTriangle, Target, MessageSquare } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { AnalysisData } from "../page";
 import Link from "next/link";
@@ -17,17 +17,17 @@ interface SkincareHistoryStepProps {
 }
 
 const concernOptions = [
-  { value: "Acne", icon: "🩹", color: "from-red-500 to-red-600" },
-  { value: "Pigmentation", icon: "🎭", color: "from-brown-500 to-brown-600" },
-  { value: "Dark circles", icon: "👁️", color: "from-purple-500 to-purple-600" },
-  { value: "Redness", icon: "🔴", color: "from-red-500 to-pink-600" },
-  { value: "Dry patches", icon: "🏜️", color: "from-yellow-500 to-orange-600" },
-  { value: "Oily T-zone", icon: "💧", color: "from-blue-500 to-cyan-600" },
-  { value: "Large pores", icon: "🔍", color: "from-gray-500 to-gray-600" },
-  { value: "Blackheads", icon: "⚫", color: "from-gray-500 to-black-600" },
-  { value: "Whiteheads", icon: "⚪", color: "from-white-500 to-gray-600" },
-  { value: "Wrinkles", icon: "📝", color: "from-orange-500 to-red-600" },
-  { value: "Sun damage", icon: "☀️", color: "from-yellow-500 to-red-600" },
+  { value: "Acne" },
+  { value: "Pigmentation" },
+  { value: "Dark circles" },
+  { value: "Redness" },
+  { value: "Dry patches" },
+  { value: "Oily T-zone" },
+  { value: "Large pores" },
+  { value: "Blackheads" },
+  { value: "Whiteheads" },
+  { value: "Wrinkles" },
+  { value: "Sun damage" },
 ];
 
 export default function SkincareHistoryStep({
@@ -75,41 +75,7 @@ export default function SkincareHistoryStep({
 
   return (
     <div className="space-y-8">
-      {/* Previous Analyses (from your account) */}
-      <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl text-white">
-            <Package className="h-6 w-6" />
-          </div>
-          <h3 className="text-lg font-semibold text-gray-900">
-            Your Recent Analyses
-          </h3>
-        </div>
-        {loadingHistory && (
-          <p className="text-sm text-gray-600">Loading your history…</p>
-        )}
-        {historyError && (
-          <p className="text-sm text-red-600">{historyError}</p>
-        )}
-        {!loadingHistory && !historyError && historyItems.length === 0 && (
-          <p className="text-sm text-gray-600">No past analyses yet. Complete one to see it here.</p>
-        )}
-        {!loadingHistory && !historyError && historyItems.length > 0 && (
-          <div className="space-y-3">
-            {historyItems.slice(0, 5).map((h) => (
-              <Card key={h.id} className="p-3 bg-white border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">Completed skin analysis</p>
-                    <p className="text-xs text-gray-500">{new Date(h.createdAt).toLocaleString()}</p>
-                  </div>
-                  <Link href={`/report?analysisId=${h.id}`} className="text-xs text-blue-600 hover:underline whitespace-nowrap">View report</Link>
-                </div>
-              </Card>
-            ))}
-          </div>
-        )}
-      </div>
+      
       {/* Header */}
       <div className="text-center mb-8">
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full text-sm font-medium mb-4">
@@ -174,7 +140,7 @@ export default function SkincareHistoryStep({
       <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300">
         <div className="flex items-center gap-3 mb-6">
           <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl text-white">
-            <Package className="h-6 w-6" />
+            <Target className="h-6 w-6" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900">
             Have you used any skincare products recently?
@@ -243,9 +209,8 @@ export default function SkincareHistoryStep({
               />
               <label
                 htmlFor={concern.value}
-                className="text-sm font-medium text-gray-700 cursor-pointer flex items-center gap-2"
+                className="text-sm font-medium text-gray-700 cursor-pointer"
               >
-                <span className="text-lg">{concern.icon}</span>
                 {concern.value}
               </label>
             </div>
@@ -266,9 +231,8 @@ export default function SkincareHistoryStep({
             />
             <label
               htmlFor="other-concern"
-              className="text-sm font-medium text-gray-700 cursor-pointer flex items-center gap-2"
+              className="text-sm font-medium text-gray-700 cursor-pointer"
             >
-              <span className="text-lg">✨</span>
               Other
             </label>
           </div>
@@ -323,13 +287,7 @@ export default function SkincareHistoryStep({
         </p>
       </div>
 
-      {/* Progress Indicator */}
-      <div className="text-center p-4 bg-white rounded-xl border border-gray-200">
-        <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
-          <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
-          <span>Your skincare history helps us avoid products that may not work for you</span>
-        </div>
-      </div>
+      
     </div>
   );
 }

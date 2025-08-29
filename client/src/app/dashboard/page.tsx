@@ -1,20 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
-import { MoreHorizontal, LogOut, Sparkles, TrendingUp, Clock, Star, Plus, Search, BarChart3, Settings, User, Zap, FileText } from "lucide-react";
-import Image from "next/image";
+import { MoreHorizontal, LogOut, Sparkles, Plus, Search, BarChart3, User, FileText } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { getSkincareHistory } from "@/lib/api";
 
 export default function DashboardPage() {
-  const isNewUser = false; // will derive below after fetching history
   const [history, setHistory] = useState<Array<{ id: string; createdAt: string; data: unknown }>>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [historyError, setHistoryError] = useState<string | null>(null);
@@ -41,28 +39,7 @@ export default function DashboardPage() {
     };
   }, []);
 
-  const productImages = useMemo(
-    () =>
-      [
-        "/cerave.png",
-        "/cetaphil.png",
-        "/Neutrogena.png",
-        "/Olay.png",
-        "/loreal.png",
-        "/minimalist.png",
-        "/Plum.png",
-        "/nivea.png",
-        "/ponds.png",
-        "/simple.png",
-        "/garnier.png",
-        "/bioderma.png",
-        "/physiogel.png",
-        "/klairs.png",
-        "/avene.jpg",
-        "/foxtale.png",
-      ],
-    []
-  );
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
@@ -88,7 +65,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Quick Actions */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8 sm:mb-12">
+            <div className="mb-8 sm:mb-12 flex justify-center">
               <Card className="p-4 sm:p-6 bg-gradient-to-br from-white to-blue-50 border-0 shadow-lg hover:shadow-xl transition-all duration-300 group">
                 <div className="flex items-center gap-3 sm:gap-4">
                   <div className="p-2 sm:p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl text-white">
@@ -106,60 +83,10 @@ export default function DashboardPage() {
                 </Link>
               </Card>
 
-              <Card className="p-4 sm:p-6 bg-gradient-to-br from-white to-purple-50 border-0 shadow-lg hover:shadow-xl transition-all duration-300 group">
-                <div className="flex items-center gap-3 sm:gap-4">
-                  <div className="p-2 sm:p-3 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl text-white">
-                    <Zap className="h-5 w-5 sm:h-6 sm:w-6" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Daily Routine</h3>
-                    <p className="text-xs sm:text-sm text-gray-600">Get your personalized skincare routine</p>
-                  </div>
-                </div>
-                <Link href="/routine" className="mt-3 sm:mt-4 block">
-                  <Button variant="outline" className="w-full border-gray-300 hover:border-purple-500 hover:bg-purple-50 transition-all duration-300 text-sm sm:text-base">
-                    Get Routine
-                  </Button>
-                </Link>
-              </Card>
+              
             </div>
 
-            {/* Recommended Products Section */}
-            <section className="mb-8 sm:mb-12" aria-labelledby="section-recommendations">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-3">
-                <div>
-                  <h2 id="section-recommendations" className="text-xl sm:text-2xl font-bold text-gray-900 mb-1 sm:mb-2">
-                    {isNewUser ? "Trending Products" : "Your Personalized Picks"}
-                  </h2>
-                  <p className="text-sm sm:text-base text-gray-600">
-                    {isNewUser
-                      ? "Discover what's working for our community"
-                      : "Based on your skin profile and preferences"}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500">
-                  <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4" />
-                  <span>Updated daily</span>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6">
-                {productImages.map((src, i) => (
-                  <Card key={`${src}-${i}`} className="group aspect-square overflow-hidden bg-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                    <div className="relative w-full h-full p-2 sm:p-4">
-                      <Image src={src} alt="product" fill className="object-contain p-1 sm:p-2" sizes="200px" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      <div className="absolute bottom-1 sm:bottom-2 left-1 sm:left-2 right-1 sm:right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <div className="flex items-center gap-1 text-white text-xs">
-                          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                          <span>4.8</span>
-                        </div>
-                      </div>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            </section>
+            
 
             {/* Recent Activity (real data if available) */}
             <section className="mb-8 sm:mb-12">
@@ -275,22 +202,8 @@ function StickySidebar() {
       {/* Middle content */}
       {!collapsed ? (
         <>
-          {/* Navigation Menu */}
-          <nav className="space-y-1 sm:space-y-2">
-            <Link href="/dashboard" className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-300 group">
-              <div className="p-1.5 sm:p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors duration-300">
-                <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
-              </div>
-              <span className="font-medium text-sm sm:text-base">Dashboard</span>
-            </Link>
-            
-            <Link href="/routine" className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-xl transition-all duration-300 group">
-              <div className="p-1.5 sm:p-2 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors duration-300">
-                <Zap className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
-              </div>
-              <span className="font-medium text-sm sm:text-base">Routine</span>
-            </Link>
-          </nav>
+          {/* Navigation Menu (Dashboard and Routine removed) */}
+          <nav className="space-y-1 sm:space-y-2" />
 
           {/* Divider */}
           <Separator className="my-4 sm:my-6" />
@@ -425,20 +338,6 @@ function StickySidebar() {
         /* Collapsed: show compact icon nav with hover tooltips */
         <>
           <nav className="flex flex-col items-center gap-3 mt-4" aria-label="Collapsed navigation">
-            <div className="relative group">
-              <Link href="/dashboard" className="p-2 rounded-xl hover:bg-blue-50 block" aria-label="Dashboard">
-                <BarChart3 className="h-5 w-5 text-blue-600 group-hover:scale-110 transition-transform" />
-              </Link>
-              <span className="pointer-events-none absolute left-10 top-1/2 -translate-y-1/2 rounded-md bg-gray-900 text-white text-xs px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg whitespace-nowrap">Dashboard</span>
-            </div>
-
-            <div className="relative group">
-              <Link href="/routine" className="p-2 rounded-xl hover:bg-green-50 block" aria-label="Routine">
-                <Zap className="h-5 w-5 text-green-600 group-hover:scale-110 transition-transform" />
-              </Link>
-              <span className="pointer-events-none absolute left-10 top-1/2 -translate-y-1/2 rounded-md bg-gray-900 text-white text-xs px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg whitespace-nowrap">Routine</span>
-            </div>
-
             <div className="relative group">
               <Link href="/analyze" className="p-2 rounded-xl hover:bg-purple-50 block" aria-label="New Analysis">
                 <Plus className="h-5 w-5 text-purple-600 group-hover:scale-110 transition-transform" />
