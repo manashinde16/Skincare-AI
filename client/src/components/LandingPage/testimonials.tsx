@@ -219,15 +219,9 @@ export default function Testimonials() {
           ))}
         </div>
 
-        {/* Bottom CTA */}
-        <div className="text-center mt-16">
-          <p className="text-lg text-gray-600 mb-6">
-            Ready to join our community of satisfied users?
-          </p>
-          <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-yellow-600 to-orange-600 text-white rounded-full text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
-            <Users className="h-5 w-5" />
-            Start Your Journey
-          </div>
+        {/* Bottom meta copy (CTA removed to reduce redundancy) */}
+        <div className="text-center mt-16 text-gray-600">
+          <p className="text-lg">Ready to join our community of satisfied users?</p>
         </div>
       </div>
     </section>

@@ -14,6 +14,7 @@ import SubmitStep from "./components/submit-step";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { AnalysisData as FullAnalysisData } from "@/utils/payload-builder";
 import type { FormSubmissionResponse } from "../../utils/form-submission";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Use the AnalysisData from payload-builder.ts as the source of truth
 export type AnalysisData = FullAnalysisData;
@@ -40,6 +41,7 @@ const steps = [
 export default function AnalyzePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [analysisData, setAnalysisData] = useState<AnalysisData>({
     gender: "",
@@ -240,11 +242,13 @@ export default function AnalyzePage() {
           <div className="container mx-auto px-4 py-6">
             <div className="flex items-center justify-between">
               <Link
-                href="/dashboard"
+                href={user ? "/dashboard" : "/"}
                 className="flex items-center gap-2 px-4 py-2 bg-white rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-blue-300 transition-all duration-300 hover:scale-105 shadow-sm"
               >
                 <ArrowLeft className="w-4 h-4" />
-                <span className="font-medium">Back to Dashboard</span>
+                <span className="font-medium">
+                  {user ? "Back to Dashboard" : "Back to Home"}
+                </span>
               </Link>
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full text-sm font-medium">
@@ -342,7 +346,7 @@ export default function AnalyzePage() {
                         className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
                       >
                         Next Step
-                        <ArrowRight className="w-5 h-5 ml-2" />
+                        <ArrowRight className="w-5 w-5 ml-2" />
                       </Button>
                     ) : (
                       <Button

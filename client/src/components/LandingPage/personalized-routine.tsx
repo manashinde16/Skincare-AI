@@ -339,17 +339,9 @@ export default function PersonalizedRoutine() {
             ))}
           </div>
 
-          {/* Bottom CTA */}
-          <div className="mt-16">
-            <p className="text-lg text-gray-600 mb-6">
-              Ready to get your personalized routine?
-            </p>
-            <Link href="/analyze">
-              <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-full px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
-                <Zap className="h-5 w-5 mr-2" />
-                Get My Routine
-              </Button>
-            </Link>
+          {/* Bottom meta copy (CTA removed to reduce redundancy) */}
+          <div className="mt-16 text-gray-600">
+            <p className="text-lg">Ready to get your personalized routine?</p>
           </div>
         </div>
       </div>

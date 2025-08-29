@@ -151,15 +151,9 @@ export default function WhyDifferent() {
           </div>
         </div>
 
-        {/* Bottom CTA */}
-        <div className="text-center">
-          <p className="text-lg text-gray-600 mb-6">
-            Ready to experience the difference?
-          </p>
-          <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-full text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
-            <Zap className="h-5 w-5" />
-            Start Free Analysis
-          </div>
+        {/* Bottom meta copy (CTA removed to reduce redundancy) */}
+        <div className="text-center text-gray-600">
+          <p className="text-lg">Ready to experience the difference?</p>
         </div>
       </div>
     </section>

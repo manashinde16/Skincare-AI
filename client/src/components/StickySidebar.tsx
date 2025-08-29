@@ -1,113 +1,17 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
-import { MoreHorizontal, LogOut, Sparkles, Plus, BarChart3, User, FileText } from "lucide-react";
+import { MoreHorizontal, LogOut, Sparkles, Plus, BarChart3, User, Zap, FileText } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/contexts/AuthContext";
 import { getSkincareHistory } from "@/lib/api";
-import AuthGuard from "@/components/AuthGuard";
 
-export default function DashboardPage() {
-  const [history, setHistory] = useState<Array<{ id: string; createdAt: string; data: unknown }>>([]);
-  const [loadingHistory, setLoadingHistory] = useState(false);
-  const [historyError, setHistoryError] = useState<string | null>(null);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    return () => {
-      setMounted(false);
-    };
-  }, []);
-
-  
-
-  useEffect(() => {
-    let mounted = true;
-    const run = async () => {
-      setLoadingHistory(true);
-      setHistoryError(null);
-      try {
-        const res = await getSkincareHistory();
-        if (!mounted) return;
-        setHistory(Array.isArray(res.items) ? res.items : []);
-      } catch (e: any) {
-        if (!mounted) return;
-        setHistoryError(e?.message || "Failed to load history");
-      } finally {
-        if (mounted) setLoadingHistory(false);
-      }
-    };
-    run();
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  return (
-    <AuthGuard requireAuth={true}>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      <div className="flex">
-        <StickySidebar />
-
-        {/* Main content */}
-        <main className="flex-1 px-4 sm:px-6 lg:px-8 xl:px-12 py-6 sm:py-8">
-          <div className="max-w-7xl mx-auto">
-            {/* Hero Section */}
-            <div className="text-center mb-8 sm:mb-12">
-              <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full text-xs sm:text-sm font-medium mb-3 sm:mb-4">
-                <Sparkles className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden sm:inline">AI-Powered Skincare Analysis</span>
-                <span className="sm:hidden">AI Skincare</span>
-              </div>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent mb-3 sm:mb-4">
-                Your Skincare Journey
-              </h1>
-              <p className="text-sm sm:text-base lg:text-lg text-gray-600 max-w-2xl mx-auto px-4">
-                Discover personalized recommendations and track your skin's transformation with AI-powered insights
-              </p>
-            </div>
-
-            {/* Quick Actions */}
-            <div className="mb-8 sm:mb-12 flex justify-center">
-              <Card className="p-4 sm:p-6 bg-gradient-to-br from-white to-blue-50 border-0 shadow-lg hover:shadow-xl transition-all duration-300 group">
-                <div className="flex items-center gap-3 sm:gap-4">
-                  <div className="p-2 sm:p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl text-white">
-                    <Plus className="h-5 w-5 sm:h-6 sm:w-6" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900 text-sm sm:text-base">New Analysis</h3>
-                    <p className="text-xs sm:text-sm text-gray-600">Start a comprehensive skin assessment</p>
-                  </div>
-                </div>
-                <Link href="/analyze" className="mt-3 sm:mt-4 block">
-                  <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white border-0 shadow-md hover:shadow-lg transition-all duration-300 text-sm sm:text-base">
-                    Begin Analysis →
-                  </Button>
-                </Link>
-              </Card>
-
-              
-            </div>
-
-            
-
-            {/* Recent Activity: now shown only in sidebar */}
-          </div>
-        </main>
-      </div>
-    </div>
-    </AuthGuard>
-  );
-}
-
-function StickySidebar() {
+export default function StickySidebar() {
   const { user, logout } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
   const [activities, setActivities] = useState<Array<{ id: string; createdAt: string; title: string }>>([]);
@@ -126,7 +30,6 @@ function StickySidebar() {
       .slice(0, 2);
   };
 
-  // Load recent activity from API
   useEffect(() => {
     let mounted = true;
     const run = async () => {
@@ -154,7 +57,6 @@ function StickySidebar() {
 
   const handleViewLatestReport = () => {
     if (activities.length > 0) {
-      // Navigate to the latest report (first item in history)
       window.location.href = `/report?analysisId=${encodeURIComponent(activities[0].id)}`;
     }
   };
@@ -175,8 +77,22 @@ function StickySidebar() {
       {/* Middle content */}
       {!collapsed ? (
         <>
-          {/* Navigation Menu (Dashboard and Routine removed) */}
-          <nav className="space-y-1 sm:space-y-2" />
+          {/* Navigation Menu */}
+          <nav className="space-y-1 sm:space-y-2">
+            <Link href="/dashboard" className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-300 group">
+              <div className="p-1.5 sm:p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors duration-300">
+                <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
+              </div>
+              <span className="font-medium text-sm sm:text-base">Dashboard</span>
+            </Link>
+            
+            <Link href="/routine" className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-xl transition-all duration-300 group">
+              <div className="p-1.5 sm:p-2 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors duration-300">
+                <Zap className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
+              </div>
+              <span className="font-medium text-sm sm:text-base">Routine</span>
+            </Link>
+          </nav>
 
           {/* Divider */}
           <Separator className="my-4 sm:my-6" />
@@ -299,6 +215,20 @@ function StickySidebar() {
         <>
           <nav className="flex flex-col items-center gap-3 mt-4" aria-label="Collapsed navigation">
             <div className="relative group">
+              <Link href="/dashboard" className="p-2 rounded-xl hover:bg-blue-50 block" aria-label="Dashboard">
+                <BarChart3 className="h-5 w-5 text-blue-600 group-hover:scale-110 transition-transform" />
+              </Link>
+              <span className="pointer-events-none absolute left-10 top-1/2 -translate-y-1/2 rounded-md bg-gray-900 text-white text-xs px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg whitespace-nowrap">Dashboard</span>
+            </div>
+
+            <div className="relative group">
+              <Link href="/routine" className="p-2 rounded-xl hover:bg-green-50 block" aria-label="Routine">
+                <Zap className="h-5 w-5 text-green-600 group-hover:scale-110 transition-transform" />
+              </Link>
+              <span className="pointer-events-none absolute left-10 top-1/2 -translate-y-1/2 rounded-md bg-gray-900 text-white text-xs px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg whitespace-nowrap">Routine</span>
+            </div>
+
+            <div className="relative group">
               <Link href="/analyze" className="p-2 rounded-xl hover:bg-purple-50 block" aria-label="New Analysis">
                 <Plus className="h-5 w-5 text-purple-600 group-hover:scale-110 transition-transform" />
               </Link>
@@ -357,4 +287,3 @@ function StickySidebar() {
     </aside>
   );
 }
-

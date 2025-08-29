@@ -74,7 +74,7 @@ export default function HeroSection() {
           </div>
 
           {/* Enhanced CTA Button */}
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="mt-10 flex items-center justify-center">
             <Link href="/analyze">
               <Button
                 size="lg"
@@ -85,16 +85,6 @@ export default function HeroSection() {
                   <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
                 </span>
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </Button>
-            </Link>
-            
-            <Link href="/signup">
-              <Button
-                variant="outline"
-                size="lg"
-                className="border-2 border-gray-300 hover:border-blue-500 hover:bg-blue-50 text-gray-700 hover:text-blue-700 rounded-full px-8 py-6 text-lg font-semibold transition-all duration-300 hover:scale-105"
-              >
-                Learn More
               </Button>
             </Link>
           </div>
