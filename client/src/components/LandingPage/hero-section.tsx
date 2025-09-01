@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export default function HeroSection() {
   return (
-    <section className="relative overflow-hidden py-16 sm:py-20 lg:py-32 min-h-[calc(100vh-80px)] flex items-center justify-center">
+    <section id="hero" className="relative overflow-hidden py-16 sm:py-20 lg:py-32 min-h-[calc(100vh-80px)] flex items-center justify-center scroll-mt-28">
       {/* Enhanced Gradient Blobs with premium colors */}
       <div
         className="absolute -top-1/4 -left-1/4 w-[900px] h-[900px] rounded-full filter blur-3xl opacity-60 animate-pulse"

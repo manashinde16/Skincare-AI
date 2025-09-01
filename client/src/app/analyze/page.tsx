@@ -80,6 +80,11 @@ export default function AnalyzePage() {
   // Resume flow after login/signup
   const [shouldAutoStart, setShouldAutoStart] = useState(false);
 
+  // Scroll to top when step changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentStep]);
+
   // On mount: if resume flag present and we have pending data in localStorage, restore it
   useEffect(() => {
     const resumeParam = searchParams.get("resume");

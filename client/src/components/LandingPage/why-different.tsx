@@ -35,7 +35,7 @@ const differentiators = [
 
 export default function WhyDifferent() {
   return (
-    <section className="py-16 sm:py-20 lg:py-24 relative">
+    <section id="why" className="py-16 sm:py-20 lg:py-24 relative scroll-mt-28">
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-full text-sm font-medium mb-4">
@@ -151,9 +151,15 @@ export default function WhyDifferent() {
           </div>
         </div>
 
-        {/* Bottom meta copy (CTA removed to reduce redundancy) */}
-        <div className="text-center text-gray-600">
-          <p className="text-lg">Ready to experience the difference?</p>
+        {/* Bottom CTA */}
+        <div className="text-center">
+          <p className="text-lg text-gray-600 mb-6">
+            Ready to experience the difference?
+          </p>
+          <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-full text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+            <Zap className="h-5 w-5" />
+            Start Free Analysis
+          </div>
         </div>
       </div>
     </section>

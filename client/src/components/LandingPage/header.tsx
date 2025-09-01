@@ -157,6 +157,15 @@ export default function Header() {
             Skincare AI
           </span>
         </Link>
+        {/* Premium Navigation */}
+        <nav className="hidden md:flex items-center gap-6 text-sm">
+          <Link href="#how-it-works" className="text-gray-600 hover:text-blue-600 transition-colors">How it works</Link>
+          <Link href="#partners" className="text-gray-600 hover:text-blue-600 transition-colors">Partners</Link>
+          <Link href="#why" className="text-gray-600 hover:text-blue-600 transition-colors">Why us</Link>
+          <Link href="#routine" className="text-gray-600 hover:text-blue-600 transition-colors">Routine</Link>
+          <Link href="#testimonials" className="text-gray-600 hover:text-blue-600 transition-colors">Testimonials</Link>
+          <Link href="#faq" className="text-gray-600 hover:text-blue-600 transition-colors">FAQ</Link>
+        </nav>
 
         <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4">
           {user ? (

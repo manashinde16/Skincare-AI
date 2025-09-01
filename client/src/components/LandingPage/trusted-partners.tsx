@@ -34,7 +34,7 @@ export default function TrustedPartners() {
   const [isPaused, setIsPaused] = useState(false);
 
   return (
-    <section className="py-16 sm:py-20 lg:py-24 relative">
+    <section id="partners" className="py-16 sm:py-20 lg:py-24 relative scroll-mt-28">
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-full text-sm font-medium mb-4">
