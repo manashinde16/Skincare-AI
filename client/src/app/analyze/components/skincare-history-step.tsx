@@ -4,9 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Mic, MicOff } from "lucide-react";
-import { useState } from "react";
-import type { AnalysisData } from "../page"; // Use the updated AnalysisData from page.tsx
+import { Mic, MicOff, AlertTriangle, Target, MessageSquare } from "lucide-react";
+import { useEffect, useState } from "react";
+import type { AnalysisData } from "../page";
+import Link from "next/link";
+import { Card } from "@/components/ui/card";
+import { getSkincareHistory } from "@/lib/api";
 
 interface SkincareHistoryStepProps {
   data: AnalysisData;
@@ -14,17 +17,17 @@ interface SkincareHistoryStepProps {
 }
 
 const concernOptions = [
-  "Acne",
-  "Pigmentation",
-  "Dark circles",
-  "Redness",
-  "Dry patches",
-  "Oily T-zone",
-  "Large pores",
-  "Blackheads",
-  "Whiteheads",
-  "Wrinkles",
-  "Sun damage",
+  { value: "Acne" },
+  { value: "Pigmentation" },
+  { value: "Dark circles" },
+  { value: "Redness" },
+  { value: "Dry patches" },
+  { value: "Oily T-zone" },
+  { value: "Large pores" },
+  { value: "Blackheads" },
+  { value: "Whiteheads" },
+  { value: "Wrinkles" },
+  { value: "Sun damage" },
 ];
 
 export default function SkincareHistoryStep({
@@ -32,6 +35,31 @@ export default function SkincareHistoryStep({
   updateData,
 }: SkincareHistoryStepProps) {
   const [isRecording, setIsRecording] = useState(false);
+  const [historyItems, setHistoryItems] = useState<Array<{ id: string; createdAt: string; data: unknown }>>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [historyError, setHistoryError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    const run = async () => {
+      setLoadingHistory(true);
+      setHistoryError(null);
+      try {
+        const res = await getSkincareHistory();
+        if (!mounted) return;
+        setHistoryItems(Array.isArray(res.items) ? res.items : []);
+      } catch (e: any) {
+        if (!mounted) return;
+        setHistoryError(e?.message || "Failed to load your history");
+      } finally {
+        if (mounted) setLoadingHistory(false);
+      }
+    };
+    run();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const toggleConcern = (concern: string) => {
     const updatedConcerns = data.concerns.includes(concern)
@@ -47,20 +75,40 @@ export default function SkincareHistoryStep({
 
   return (
     <div className="space-y-8">
+      
+      {/* Header */}
+      <div className="text-center mb-8">
+        <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full text-sm font-medium mb-4">
+          <Target className="h-4 w-4" />
+          Skincare History
+        </div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          Your Skincare Journey
+        </h2>
+        <p className="text-gray-600">
+          Understanding your skincare history helps us create a routine that builds on your experience.
+        </p>
+      </div>
+
       {/* Allergies */}
-      <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Do you have any known skin allergies?
-        </h3>
+      <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-xl text-white">
+            <AlertTriangle className="h-6 w-6" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900">
+            Do you have any known skin allergies?
+          </h3>
+        </div>
         <div className="space-y-4">
           <div className="flex space-x-4">
             <Button
               variant={data.hasAllergies === true ? "default" : "outline"}
               onClick={() => updateData({ hasAllergies: true })}
-              className={`${
+              className={`px-6 py-3 rounded-xl border-2 transition-all duration-300 hover:scale-105 ${
                 data.hasAllergies === true
-                  ? "bg-gradient-to-r from-purple-accent to-magenta-accent text-white"
-                  : "border-purple-200 text-gray-700 hover:bg-purple-50"
+                  ? "bg-gradient-to-r from-red-500 to-pink-600 text-white shadow-lg"
+                  : "border-gray-200 text-gray-700 hover:border-red-300 hover:bg-red-50 bg-white"
               }`}
             >
               Yes
@@ -68,10 +116,10 @@ export default function SkincareHistoryStep({
             <Button
               variant={data.hasAllergies === false ? "default" : "outline"}
               onClick={() => updateData({ hasAllergies: false, allergies: "" })}
-              className={`${
+              className={`px-6 py-3 rounded-xl border-2 transition-all duration-300 hover:scale-105 ${
                 data.hasAllergies === false
-                  ? "bg-gradient-to-r from-purple-accent to-magenta-accent text-white"
-                  : "border-purple-200 text-gray-700 hover:bg-purple-50"
+                  ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg"
+                  : "border-gray-200 text-gray-700 hover:border-green-300 hover:bg-green-50 bg-white"
               }`}
             >
               No
@@ -82,26 +130,31 @@ export default function SkincareHistoryStep({
               placeholder="Please list your allergies..."
               value={data.allergies}
               onChange={(e) => updateData({ allergies: e.target.value })}
-              className="border-purple-200 focus:border-purple-400 focus:ring-purple-400"
+              className="border-gray-200 focus:border-red-400 focus:ring-red-400 rounded-xl"
             />
           )}
         </div>
       </div>
 
       {/* Recent Products */}
-      <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Have you used any skincare products recently?
-        </h3>
+      <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl text-white">
+            <Target className="h-6 w-6" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900">
+            Have you used any skincare products recently?
+          </h3>
+        </div>
         <div className="space-y-4">
           <div className="flex space-x-4">
             <Button
               variant={data.usesProducts === true ? "default" : "outline"}
               onClick={() => updateData({ usesProducts: true })}
-              className={`${
+              className={`px-6 py-3 rounded-xl border-2 transition-all duration-300 hover:scale-105 ${
                 data.usesProducts === true
-                  ? "bg-gradient-to-r from-purple-accent to-magenta-accent text-white"
-                  : "border-purple-200 text-gray-700 hover:bg-purple-50"
+                  ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg"
+                  : "border-gray-200 text-gray-700 hover:border-blue-300 hover:bg-blue-50 bg-white"
               }`}
             >
               Yes
@@ -109,10 +162,10 @@ export default function SkincareHistoryStep({
             <Button
               variant={data.usesProducts === false ? "default" : "outline"}
               onClick={() => updateData({ usesProducts: false, products: "" })}
-              className={`${
+              className={`px-6 py-3 rounded-xl border-2 transition-all duration-300 hover:scale-105 ${
                 data.usesProducts === false
-                  ? "bg-gradient-to-r from-purple-accent to-magenta-accent text-white"
-                  : "border-purple-200 text-gray-700 hover:bg-purple-50"
+                  ? "bg-gradient-to-r from-gray-500 to-gray-600 text-white shadow-lg"
+                  : "border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50 bg-white"
               }`}
             >
               No
@@ -123,41 +176,46 @@ export default function SkincareHistoryStep({
               placeholder="Please list the products you've been using..."
               value={data.products}
               onChange={(e) => updateData({ products: e.target.value })}
-              className="border-purple-200 focus:border-purple-400 focus:ring-purple-400"
+              className="border-gray-200 focus:border-blue-400 focus:ring-blue-400 rounded-xl"
             />
           )}
         </div>
       </div>
 
       {/* Skin Concerns */}
-      <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Do you have any current skin concerns?
-        </h3>
+      <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl text-white">
+            <Target className="h-6 w-6" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900">
+            Do you have any current skin concerns?
+          </h3>
+        </div>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {concernOptions.map((concern) => (
-            <div key={concern} className="flex items-center space-x-2">
+            <div key={concern.value} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
               <Checkbox
-                id={concern}
-                checked={data.concerns.includes(concern)}
+                id={concern.value}
+                checked={data.concerns.includes(concern.value)}
                 onCheckedChange={(checked) => {
                   if (checked) {
-                    toggleConcern(concern);
+                    toggleConcern(concern.value);
                   } else {
-                    toggleConcern(concern);
+                    toggleConcern(concern.value);
                   }
                 }}
-                className="border-purple-300 data-[state=checked]:bg-purple-accent data-[state=checked]:border-purple-accent"
+                className="border-gray-300 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
               />
               <label
-                htmlFor={concern}
+                htmlFor={concern.value}
                 className="text-sm font-medium text-gray-700 cursor-pointer"
               >
-                {concern}
+                {concern.value}
               </label>
             </div>
           ))}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
             <Checkbox
               id="other-concern"
               checked={data.concerns.includes("Other")}
@@ -166,10 +224,10 @@ export default function SkincareHistoryStep({
                   toggleConcern("Other");
                 } else {
                   toggleConcern("Other");
-                  updateData({ otherConcern: "" }); // Clear other concern if unchecked
+                  updateData({ otherConcern: "" });
                 }
               }}
-              className="border-purple-300 data-[state=checked]:bg-purple-accent data-[state=checked]:border-purple-accent"
+              className="border-gray-300 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
             />
             <label
               htmlFor="other-concern"
@@ -184,44 +242,52 @@ export default function SkincareHistoryStep({
             placeholder="Please specify other concerns..."
             value={data.otherConcern}
             onChange={(e) => updateData({ otherConcern: e.target.value })}
-            className="mt-4 border-purple-200 focus:border-purple-400 focus:ring-purple-400"
+            className="mt-4 border-gray-200 focus:border-purple-400 focus:ring-purple-400 rounded-xl"
           />
         )}
       </div>
 
       {/* Additional Details */}
-      <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Additional Details
-        </h3>
+      <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl text-white">
+            <MessageSquare className="h-6 w-6" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900">
+            Additional Details
+          </h3>
+        </div>
         <div className="relative">
           <Textarea
             placeholder="Describe anything else we should know..."
             value={data.additionalDetails}
             onChange={(e) => updateData({ additionalDetails: e.target.value })}
-            className="border-purple-200 focus:border-purple-400 focus:ring-purple-400 pr-12 min-h-[100px]"
+            className="border-gray-200 focus:border-green-400 focus:ring-green-400 pr-12 min-h-[100px] rounded-xl resize-none"
           />
           <Button
             variant="ghost"
             size="sm"
             onClick={toggleRecording}
-            className={`absolute bottom-3 right-3 ${
+            className={`absolute bottom-3 right-3 p-2 rounded-lg transition-all duration-300 hover:scale-110 ${
               isRecording
-                ? "text-red-500 hover:text-red-600"
-                : "text-purple-600 hover:text-purple-700"
+                ? "text-red-500 hover:text-red-600 bg-red-50"
+                : "text-green-600 hover:text-green-700 bg-green-50"
             }`}
           >
             {isRecording ? (
-              <MicOff className="w-4 h-4" />
+              <MicOff className="w-5 h-5" />
             ) : (
-              <Mic className="w-4 h-4" />
+              <Mic className="w-5 h-5" />
             )}
           </Button>
         </div>
-        <p className="text-xs text-gray-500 mt-2">
+        <p className="text-xs text-gray-500 mt-3 flex items-center gap-2">
+          <Mic className="w-3 h-3 text-green-600" />
           Click the microphone icon to use voice-to-text
         </p>
       </div>
+
+      
     </div>
   );
 }

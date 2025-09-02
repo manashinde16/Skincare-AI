@@ -102,10 +102,11 @@ export async function submitAnalysisForm(
     });
 
     // Make the request to the backend
-    const response = await fetch("http://localhost:4000/api/generate", {
+    const response = await fetch("http://localhost:4000/api/ai/generate", {
       method: "POST",
       body: formData,
       // Important: Do NOT set Content-Type header - let browser set multipart boundary
+      credentials: "include", // send auth cookie if present
     });
 
     if (!response.ok) {
