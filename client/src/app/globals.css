@@ -244,6 +244,16 @@
   }
 }
 
+/* Shimmer for skeleton loaders */
+@keyframes skeleton-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 /* ================================
    BASE STYLES
 ================================ */
@@ -256,6 +266,26 @@
   }
   body {
     @apply bg-background text-foreground transition-colors duration-300 overflow-x-hidden;
+  }
+
+  /* Base skeleton style with shimmer overlay */
+  .skeleton {
+    position: relative;
+    overflow: hidden;
+  }
+  .skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.6) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    transform: translateX(-100%);
+    animation: skeleton-shimmer 1.4s ease-in-out infinite;
+    opacity: 0.35;
   }
 
   /* Global dark background gradient */

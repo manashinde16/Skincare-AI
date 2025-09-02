@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Sparkles, LogOut, User } from "lucide-react";
+import { Sparkles, LogOut, User, Menu, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   DropdownMenu,
@@ -17,6 +17,7 @@ export default function Header() {
   const { user, logout, loading } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -29,6 +30,18 @@ export default function Header() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isMobileMenuOpen && !(event.target as Element).closest('.mobile-menu')) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isMobileMenuOpen]);
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -157,7 +170,7 @@ export default function Header() {
             Skincare AI
           </span>
         </Link>
-        {/* Premium Navigation */}
+        {/* Premium Navigation - Desktop */}
         <nav className="hidden md:flex items-center gap-6 text-sm">
           <Link href="#how-it-works" className="text-gray-600 hover:text-blue-600 transition-colors">How it works</Link>
           <Link href="#partners" className="text-gray-600 hover:text-blue-600 transition-colors">Partners</Link>
@@ -166,6 +179,20 @@ export default function Header() {
           <Link href="#testimonials" className="text-gray-600 hover:text-blue-600 transition-colors">Testimonials</Link>
           <Link href="#faq" className="text-gray-600 hover:text-blue-600 transition-colors">FAQ</Link>
         </nav>
+
+        {/* Mobile Menu Button */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="md:hidden h-10 w-10 p-0 rounded-xl hover:bg-gray-100 transition-all duration-300"
+        >
+          {isMobileMenuOpen ? (
+            <X className="h-5 w-5 text-gray-600" />
+          ) : (
+            <Menu className="h-5 w-5 text-gray-600" />
+          )}
+        </Button>
 
         <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4">
           {user ? (
@@ -235,6 +262,60 @@ export default function Header() {
           )}
         </div>
       </div>
+
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div className="mobile-menu md:hidden fixed inset-0 top-[78px] z-40 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white/95 backdrop-blur-xl border-t border-gray-200 shadow-2xl">
+            <nav className="container mx-auto px-4 py-6">
+              <div className="space-y-4">
+                <Link 
+                  href="#how-it-works" 
+                  className="block py-3 px-4 text-lg font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-300"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  How it works
+                </Link>
+                <Link 
+                  href="#partners" 
+                  className="block py-3 px-4 text-lg font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-300"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Partners
+                </Link>
+                <Link 
+                  href="#why" 
+                  className="block py-3 px-4 text-lg font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-300"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Why us
+                </Link>
+                <Link 
+                  href="#routine" 
+                  className="block py-3 px-4 text-lg font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-300"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Routine
+                </Link>
+                <Link 
+                  href="#testimonials" 
+                  className="block py-3 px-4 text-lg font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-300"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Testimonials
+                </Link>
+                <Link 
+                  href="#faq" 
+                  className="block py-3 px-4 text-lg font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-300"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  FAQ
+                </Link>
+              </div>
+            </nav>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

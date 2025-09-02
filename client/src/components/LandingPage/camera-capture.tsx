@@ -173,7 +173,7 @@ export default function CameraCapture({
         <p className="text-sm text-gray-600">{description}</p>
       </div>
 
-      <Card className="border-2 border-dashed border-purple-200 hover:border-purple-300 transition-colors animate-glass-pulse">
+      <Card className="border-2 border-dashed border-blue-200 hover:border-blue-300 transition-colors animate-glass-pulse">
         <CardContent className="p-6">
           {imagePreviewUrl ? (
             <div className="relative">
@@ -187,55 +187,37 @@ export default function CameraCapture({
               <div className="absolute top-2 right-2 bg-green-500 rounded-full p-1">
                 <CheckCircle className="w-4 h-4 text-white" />
               </div>
-              <div className="mt-3 grid grid-cols-3 gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => openCamera("environment")}
-                  className="w-full border-purple-200 text-purple-600 hover:bg-purple-50 opacity-100"
-                >
-                  Retake
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => triggerFileInput()}
-                  className="w-full border-purple-200 text-purple-600 hover:bg-purple-50 opacity-100"
-                >
-                  Change
-                </Button>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={clearPhoto}
-                  className="w-full"
-                >
-                  Delete
-                </Button>
-              </div>
+                             <div className="mt-3 space-y-2">
+                 <Button
+                   variant="outline"
+                   size="sm"
+                   onClick={() => openCamera("environment")}
+                   className="w-full border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all duration-300"
+                 >
+                   Retake
+                 </Button>
+                 <Button
+                   variant="outline"
+                   size="sm"
+                   onClick={clearPhoto}
+                   className="w-full border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 transition-all duration-300"
+                 >
+                   Delete
+                 </Button>
+               </div>
             </div>
           ) : (
             <div className="text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-purple-100 rounded-full flex items-center justify-center">
-                <Camera className="w-8 h-8 text-purple-600" />
+              <div className="w-16 h-16 mx-auto mb-4 bg-blue-100 rounded-full flex items-center justify-center">
+                <Camera className="w-8 h-8 text-blue-600" />
               </div>
-              <div className="space-y-2">
-                <Button
-                  onClick={() => triggerFileInput()}
-                  className="w-full bg-gradient-to-r from-purple-accent to-magenta-accent hover:from-purple-600 hover:to-pink-600 text-white opacity-100"
-                >
-                  <Upload className="w-4 h-4 mr-2" />
-                  Upload Image
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => openCamera("environment")}
-                  className="w-full border-purple-200 text-purple-600 hover:bg-purple-50 bg-transparent opacity-100"
-                >
-                  <Camera className="w-4 h-4 mr-2" />
-                  Take Photo
-                </Button>
-              </div>
+              <Button
+                onClick={() => openCamera("environment")}
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+              >
+                <Camera className="w-4 h-4 mr-2" />
+                Take Photo
+              </Button>
             </div>
           )}
 
@@ -259,7 +241,7 @@ export default function CameraCapture({
               <p className="text-red-600 text-sm mt-2">{cameraError}</p>
             )}
             <div className="flex gap-3 mt-4">
-              <Button onClick={captureFromVideo} className="flex-1 bg-gradient-to-r from-purple-accent to-magenta-accent text-white">Capture</Button>
+              <Button onClick={captureFromVideo} className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300">Capture</Button>
               <Button variant="outline" onClick={stopCamera} className="flex-1">Cancel</Button>
             </div>
           </div>
