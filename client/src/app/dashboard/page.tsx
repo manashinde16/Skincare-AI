@@ -109,7 +109,7 @@ export default function DashboardPage() {
 
 function StickySidebar() {
   const { user, logout } = useAuth();
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
   const [activities, setActivities] = useState<Array<{ id: string; createdAt: string; title: string }>>([]);
   const [loadingActivities, setLoadingActivities] = useState(false);
   const [activitiesError, setActivitiesError] = useState<string | null>(null);
@@ -322,37 +322,34 @@ function StickySidebar() {
 
       {/* Bottom: User + actions - Always visible */}
       <div className="mt-auto pt-4 border-t border-gray-200/60">
-        <div className="flex items-center justify-between gap-2 sm:gap-3">
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-            <Avatar className="h-8 w-8 sm:h-10 sm:w-10 ring-2 ring-gray-200 hover:ring-blue-300 transition-all duration-300 shadow-lg">
-              <AvatarImage src="/placeholder.svg?height=32&width=32" />
-              <AvatarFallback className="bg-gradient-to-br from-blue-600 to-purple-600 text-white text-xs sm:text-sm font-semibold">
-                {getInitials(user?.name || "User")}
-              </AvatarFallback>
-            </Avatar>
-            {!collapsed && (
-              <div className="truncate">
-                <div className="text-xs sm:text-sm font-semibold text-gray-900 truncate">
-                  {user?.name || "Guest"}
-                </div>
-                <div className="text-xs text-gray-500 truncate">{user?.email || "Not signed in"}</div>
-              </div>
-            )}
-          </div>
-          <DropdownMenu>
+        <DropdownMenu>
+          <div className="flex items-center justify-between gap-2 sm:gap-3">
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="px-1.5 sm:px-2 py-1 sm:py-1.5 border-gray-200 hover:border-gray-300 hover:bg-gray-50 h-8 w-8 sm:h-9 sm:w-8">
-                <MoreHorizontal className="h-3 w-3 sm:h-4 sm:w-4" />
-              </Button>
+              <button className="flex items-center gap-2 sm:gap-3 min-w-0 rounded-lg px-1.5 py-1 hover:bg-gray-50 transition-colors">
+                <Avatar className="h-8 w-8 sm:h-10 sm:w-10 ring-2 ring-gray-200 hover:ring-blue-300 transition-all duration-300 shadow-lg">
+                  <AvatarImage src="/placeholder.svg?height=32&width=32" />
+                  <AvatarFallback className="bg-gradient-to-br from-blue-600 to-purple-600 text-white text-xs sm:text-sm font-semibold">
+                    {getInitials(user?.name || "User")}
+                  </AvatarFallback>
+                </Avatar>
+                {!collapsed && (
+                  <div className="truncate text-left">
+                    <div className="text-xs sm:text-sm font-semibold text-gray-900 truncate">
+                      {user?.name || "Guest"}
+                    </div>
+                    <div className="text-xs text-gray-500 truncate">{user?.email || "Not signed in"}</div>
+                  </div>
+                )}
+              </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-32">
-              <DropdownMenuItem onClick={logout} className="cursor-pointer text-red-600 focus:text-red-600 text-xs sm:text-sm">
-                <LogOut className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
-                Logout
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+          </div>
+          <DropdownMenuContent align="start" className="w-40">
+            <DropdownMenuItem onClick={logout} className="cursor-pointer text-red-600 focus:text-red-600 text-xs sm:text-sm">
+              <LogOut className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
+              Logout
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </aside>
   );

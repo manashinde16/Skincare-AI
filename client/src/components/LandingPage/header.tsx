@@ -34,7 +34,12 @@ export default function Header() {
   // Close mobile menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (isMobileMenuOpen && !(event.target as Element).closest('.mobile-menu')) {
+      const target = event.target as Element;
+      if (
+        isMobileMenuOpen &&
+        !target.closest('.mobile-menu') &&
+        !target.closest('.menu-trigger')
+      ) {
         setIsMobileMenuOpen(false);
       }
     };
@@ -123,7 +128,7 @@ export default function Header() {
   return (
     <header
       className={`
-          fixed top-0 left-0 z-50 w-full px-6
+          fixed top-0 left-0 z-50 w-full px-0 md:px-6
           bg-white/90 dark:bg-neutral-900/90 backdrop-blur-xl shadow-2xl
           border border-white/40 dark:border-white/20
           transition-all duration-500 ease-out
@@ -146,24 +151,36 @@ export default function Header() {
       }}
     >
       <div
-        className={`flex h-full items-center justify-between ${
+        className={`relative flex h-full items-center justify-between ${
           scrollProgress > 0.1
-            ? "px-3 sm:px-4 md:px-6"
-            : "container mx-auto px-3 sm:px-4 md:px-6"
+            ? "px-0 sm:px-4 md:px-6"
+            : "container mx-auto px-0 sm:px-4 md:px-6"
         }`}
       >
-        <Link href="/" className="flex items-center space-x-3 group">
+        {/* Mobile Menu Button - leftmost on small screens */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+          className={`menu-trigger md:hidden absolute left-2 top-1/2 -translate-y-1/2 ${
+            scrollProgress > 0.15 ? "h-8 w-8" : "h-10 w-10"
+          } p-0 rounded-xl hover:bg-gray-100 transition-all duration-300 z-50`}
+        >
+          <Menu className={`${scrollProgress > 0.15 ? "h-4 w-4" : "h-5 w-5"} text-gray-600`} />
+        </Button>
+
+        <Link href="/" className="flex items-center space-x-3 group ml-12 md:ml-0 h-12">
           <div
             className={`
-               flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-purple-600
+               flex ${scrollProgress > 0.15 ? "h-8 w-8" : "h-10 w-10"} items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-purple-600
                shadow-xl group-hover:shadow-2xl group-hover:scale-110 transition-all duration-500
              `}
           >
-            <Sparkles className="h-6 w-6 text-white group-hover:rotate-12 transition-transform duration-500" />
+            <Sparkles className={`${scrollProgress > 0.15 ? "h-5 w-5" : "h-6 w-6"} text-white group-hover:rotate-12 transition-transform duration-500`} />
           </div>
           <span
             className={`
-               text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent
+               ${scrollProgress > 0.15 ? "text-lg" : "text-xl sm:text-2xl"} font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent
                group-hover:scale-105 transition-transform duration-300
              `}
           >
@@ -180,19 +197,6 @@ export default function Header() {
           <Link href="#faq" className="text-gray-600 hover:text-blue-600 transition-colors">FAQ</Link>
         </nav>
 
-        {/* Mobile Menu Button */}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="md:hidden h-10 w-10 p-0 rounded-xl hover:bg-gray-100 transition-all duration-300"
-        >
-          {isMobileMenuOpen ? (
-            <X className="h-5 w-5 text-gray-600" />
-          ) : (
-            <Menu className="h-5 w-5 text-gray-600" />
-          )}
-        </Button>
 
         <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4">
           {user ? (
@@ -236,28 +240,19 @@ export default function Header() {
             </DropdownMenu>
           ) : (
             <>
-              <Link href="/login">
+              <Link href="/login" className="h-10">
                 <Button
                   variant="outline"
                   className={`
-                        border-gray-300 text-gray-700 bg-white hover:border-blue-500 hover:bg-blue-50 hover:text-blue-700 rounded-full px-4 sm:px-6
-                        transition-all duration-500 ease-out hover:scale-105 font-medium text-sm sm:text-base shadow-md hover:shadow-xl
+                        border-gray-300 text-gray-700 bg-white hover:border-blue-500 hover:bg-blue-50 hover:text-blue-700 rounded-full
+                        transition-all duration-500 ease-out hover:scale-105 font-medium shadow-md hover:shadow-xl
+                        ${scrollProgress > 0.15 ? "px-3 py-1.5 text-xs" : "px-4 sm:px-6 text-sm sm:text-base"}
                       `}
                 >
                   Sign in
                 </Button>
               </Link>
-              <Link href="/signup">
-                <Button
-                  className={`
-                        bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 
-                        text-white rounded-full px-4 sm:px-6 shadow-xl hover:shadow-2xl
-                        transition-all duration-500 ease-out hover:scale-105 font-medium text-sm sm:text-base
-                      `}
-                >
-                  Signup
-                </Button>
-              </Link>
+              
             </>
           )}
         </div>
@@ -265,8 +260,13 @@ export default function Header() {
 
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
-        <div className="mobile-menu md:hidden fixed inset-0 top-[78px] z-40 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white/95 backdrop-blur-xl border-t border-gray-200 shadow-2xl">
+        <div
+          className="md:hidden fixed inset-0 top-[78px] z-40 bg-black/50 backdrop-blur-sm"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsMobileMenuOpen(false);
+          }}
+        >
+          <div className="mobile-menu bg-white/95 backdrop-blur-xl border-t border-gray-200 shadow-2xl">
             <nav className="container mx-auto px-4 py-6">
               <div className="space-y-4">
                 <Link 
