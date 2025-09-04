@@ -320,12 +320,12 @@ function StickySidebar() {
         </>
       )}
 
-      {/* Bottom: User + actions - Always visible */}
+      {/* Bottom: User + actions - centered */}
       <div className="mt-auto pt-4 border-t border-gray-200/60">
         <DropdownMenu>
-          <div className="flex items-center justify-between gap-2 sm:gap-3">
+          <div className="flex flex-col items-center gap-2 sm:gap-3 w-full">
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-2 sm:gap-3 min-w-0 rounded-lg px-1.5 py-1 hover:bg-gray-50 transition-colors">
+              <button className="flex flex-col items-center gap-2 min-w-0 rounded-lg px-1.5 py-1 hover:bg-gray-50 transition-colors">
                 <Avatar className="h-8 w-8 sm:h-10 sm:w-10 ring-2 ring-gray-200 hover:ring-blue-300 transition-all duration-300 shadow-lg">
                   <AvatarImage src="/placeholder.svg?height=32&width=32" />
                   <AvatarFallback className="bg-gradient-to-br from-blue-600 to-purple-600 text-white text-xs sm:text-sm font-semibold">
@@ -333,7 +333,7 @@ function StickySidebar() {
                   </AvatarFallback>
                 </Avatar>
                 {!collapsed && (
-                  <div className="truncate text-left">
+                  <div className="truncate text-center">
                     <div className="text-xs sm:text-sm font-semibold text-gray-900 truncate">
                       {user?.name || "Guest"}
                     </div>
@@ -343,7 +343,7 @@ function StickySidebar() {
               </button>
             </DropdownMenuTrigger>
           </div>
-          <DropdownMenuContent align="start" className="w-40">
+          <DropdownMenuContent align="center" className="w-40">
             <DropdownMenuItem onClick={logout} className="cursor-pointer text-red-600 focus:text-red-600 text-xs sm:text-sm">
               <LogOut className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
               Logout
