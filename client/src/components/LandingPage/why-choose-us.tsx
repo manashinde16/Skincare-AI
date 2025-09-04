@@ -49,7 +49,7 @@ export default function WhyChooseUs() {
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
             Why Choose Our{" "}
-            <span className="bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent font-accent">
               AI Assistant?
             </span>
           </h2>

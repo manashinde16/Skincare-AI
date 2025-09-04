@@ -1,48 +1,45 @@
-import * as React from "react"
-import { cn } from "@/lib/utils"
+import * as React from "react";
+import { cn } from "@/lib/utils";
 
-export interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
-  rounded?: "sm" | "md" | "lg" | "xl" | "full"
+type DivProps = React.HTMLAttributes<HTMLDivElement>;
+
+export function Skeleton({ className, ...props }: DivProps) {
+	return (
+		<div
+			className={cn("animate-pulse rounded-md bg-muted", className)}
+			{...props}
+		/>
+	);
 }
 
-export function Skeleton({ className, rounded = "md", ...props }: SkeletonProps) {
-  const roundedClass =
-    rounded === "sm"
-      ? "rounded"
-      : rounded === "md"
-      ? "rounded-md"
-      : rounded === "lg"
-      ? "rounded-lg"
-      : rounded === "xl"
-      ? "rounded-xl"
-      : "rounded-full"
-
-  return (
-    <div
-      className={cn(
-        "skeleton bg-muted/60 dark:bg-muted/30", // shimmer skeleton loader
-        roundedClass,
-        className
-      )}
-      {...props}
-    />
-  )
+interface SkeletonAvatarProps extends DivProps {
+	size?: number;
 }
 
-export function SkeletonText({ lines = 3, className = "", rounded = "md" }: { lines?: number; className?: string; rounded?: SkeletonProps["rounded"] }) {
-  return (
-    <div className={cn("space-y-2", className)}>
-      {Array.from({ length: lines }).map((_, idx) => (
-        <Skeleton key={idx} className={cn("h-4 w-full", idx === lines - 1 ? "w-2/3" : "w-full")} rounded={rounded} />
-      ))}
-    </div>
-  )
+export function SkeletonAvatar({ size = 40, className, style, ...props }: SkeletonAvatarProps) {
+	const dimension = Math.max(8, Math.floor(size));
+	return (
+		<div
+			className={cn("animate-pulse rounded-full bg-muted", className)}
+			style={{ width: dimension, height: dimension, ...style }}
+			{...props}
+		/>
+	);
 }
 
-export function SkeletonAvatar({ size = 40, className = "" }: { size?: number; className?: string }) {
-  return <Skeleton className={cn("inline-block", className)} style={{ width: size, height: size }} rounded="full" />
+interface SkeletonTextProps extends DivProps {
+	lines?: number;
 }
 
-export default Skeleton
+export function SkeletonText({ lines = 1, className, ...props }: SkeletonTextProps) {
+	const safeLines = Math.max(1, Math.floor(lines));
+	return (
+		<div className={cn("space-y-2", className)} {...props}>
+			{Array.from({ length: safeLines }).map((_, index) => (
+				<Skeleton key={index} className={cn("h-4 w-full", index === safeLines - 1 && "w-5/6")} />
+			))}
+		</div>
+	);
+}
 
 

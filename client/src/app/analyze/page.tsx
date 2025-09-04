@@ -248,20 +248,17 @@ export default function AnalyzePage() {
             <div className="flex items-center justify-between">
               <Link
                 href={user ? "/dashboard" : "/"}
-                className="flex items-center gap-2 px-4 py-2 bg-white rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-blue-300 transition-all duration-300 hover:scale-105 shadow-sm"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-blue-300 transition-colors shadow-sm"
               >
-                <ArrowLeft className="w-4 h-4" />
-                <span className="font-medium">
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span className="text-sm font-medium">
                   {user ? "Back to Dashboard" : "Back to Home"}
                 </span>
               </Link>
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full text-sm font-medium">
-                  <Brain className="h-4 w-4" />
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full text-xs font-medium">
+                  <Brain className="h-3.5 w-3.5" />
                   AI Analysis
-                </div>
-                <div className="text-sm text-gray-600 font-medium">
-                  Step {currentStep} of {steps.length}
                 </div>
               </div>
             </div>
@@ -269,10 +266,10 @@ export default function AnalyzePage() {
         </div>
 
         {/* Progress Section (steps only) */}
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-6 md:py-8">
           <div className="max-w-5xl mx-auto">
-            {/* Progress Steps */}
-            <div className="flex items-center justify-between mb-8">
+            {/* Desktop: show all steps */}
+            <div className="hidden md:flex items-center justify-between mb-8">
               {steps.map((step, index) => (
                 <div key={step.id} className="flex items-center">
                   <div className="flex flex-col items-center">
@@ -304,6 +301,20 @@ export default function AnalyzePage() {
                   )}
                 </div>
               ))}
+            </div>
+
+            {/* Mobile: show only active step */}
+            <div className="md:hidden flex items-center justify-center mb-6">
+              <div className="flex flex-col items-center">
+                <div className="flex items-center justify-center w-12 h-12 rounded-2xl border-2 transition-all duration-500 bg-gradient-to-r from-blue-600 to-purple-600 border-blue-600 text-white shadow-lg">
+                  <span className="text-base font-bold">{currentStep}</span>
+                </div>
+                <div className="text-center mt-2">
+                  <div className="text-xs font-medium text-blue-600 leading-none">
+                    {steps[currentStep - 1].title}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

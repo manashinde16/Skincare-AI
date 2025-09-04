@@ -42,7 +42,7 @@ export default function HowItWorks() {
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
             Get Your Analysis in{" "}
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-accent">
               4 Simple Steps
             </span>
           </h2>

@@ -24,13 +24,25 @@ The JSON should follow this exact schema:
           "name": string,
           "howToUse": string,
           "keyIngredients": [ string ],
-          "productLink": string
+          "productLink": string,
+          "rating": {
+            "value": number,        // 0-5 scale
+            "count": number,        // number of reviews if available
+            "source": "nykaa" | "amazon" | "flipkart" | "google",
+            "url": string           // URL where this rating was found
+          }
         },
         {
           "name": string,
           "howToUse": string,
           "keyIngredients": [ string ],
-          "productLink": string
+          "productLink": string,
+          "rating": {
+            "value": number,
+            "count": number,
+            "source": "nykaa" | "amazon" | "flipkart" | "google",
+            "url": string
+          }
         }
       ]
     }
@@ -45,13 +57,25 @@ The JSON should follow this exact schema:
           "name": string,
           "howToUse": string,
           "keyIngredients": [ string ],
-          "productLink": string
+          "productLink": string,
+          "rating": {
+            "value": number,
+            "count": number,
+            "source": "nykaa" | "amazon" | "flipkart" | "google",
+            "url": string
+          }
         },
         {
           "name": string,
           "howToUse": string,
           "keyIngredients": [ string ],
-          "productLink": string
+          "productLink": string,
+          "rating": {
+            "value": number,
+            "count": number,
+            "source": "nykaa" | "amazon" | "flipkart" | "google",
+            "url": string
+          }
         }
       ]
     }
@@ -66,7 +90,13 @@ The JSON should follow this exact schema:
       "name": string,
       "howToUse": string,
       "keyIngredients": [ string ],
-      "productLink": string
+      "productLink": string,
+      "rating": {
+        "value": number,
+        "count": number,
+        "source": "nykaa" | "amazon" | "flipkart" | "google",
+        "url": string
+      }
     }
   ]
 }
@@ -83,6 +113,13 @@ The JSON should follow this exact schema:
 - If unsure, give safe generic recommendations.
 - Prefer products available in India (Amazon India, Nykaa, Flipkart, Indian brands like Cetaphil India, Minimalist, Lakme, Nivea India, etc.). Provide India-available links wherever possible.
 - For each routine step, provide exactly TWO productOptions (A or B) tailored to that step.
+
+RATINGS POLICY (MANDATORY):
+- Only recommend products with rating.value >= 4.0.
+- Determine ratings using this priority order and record the chosen source in rating.source:
+  1) Nykaa, 2) Amazon India, 3) Flipkart, 4) Google (last resort).
+- When possible, include rating.count (number of reviews) and rating.url (the page where the rating was found).
+- If a product cannot be verified to have 4.0+ rating on the above sources, choose a different product that meets this criteria.
 
 Here are the user’s answers to the questionnaire (full JSON):
 ${userResponses}
